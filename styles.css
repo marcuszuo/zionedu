@@ -148,6 +148,7 @@ textarea {
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .user-chip {
@@ -156,6 +157,27 @@ textarea {
   background: rgba(18, 31, 53, 0.06);
   color: #42516d;
   font-weight: 700;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.compact-input {
+  min-width: 160px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(18, 31, 53, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text);
+  outline: none;
+}
+
+.compact-input.wide {
+  min-width: 280px;
 }
 
 .compact-btn {
@@ -209,6 +231,12 @@ textarea {
   background: rgba(16, 183, 222, 0.1);
   color: var(--brand-deep);
   font-weight: 700;
+}
+
+.setup-status {
+  margin: 12px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .hero-actions,
@@ -548,7 +576,8 @@ textarea {
 .generator-form input,
 .generator-form select,
 .generator-form textarea,
-.field input {
+.field input,
+.field textarea {
   width: 100%;
   border: 1px solid rgba(18, 31, 53, 0.08);
   background: rgba(248, 251, 255, 0.92);
@@ -558,9 +587,10 @@ textarea {
   outline: none;
 }
 
-.generator-form textarea {
+.generator-form textarea,
+.field textarea {
   resize: vertical;
-  min-height: 140px;
+  min-height: 120px;
 }
 
 .output-card,
@@ -851,6 +881,10 @@ textarea {
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .topbar {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 720px) {
@@ -877,6 +911,16 @@ textarea {
   .insight-grid,
   .dual-field {
     grid-template-columns: 1fr;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .compact-input,
+  .compact-input.wide {
+    width: 100%;
+    min-width: 0;
   }
 
   .modal-actions,

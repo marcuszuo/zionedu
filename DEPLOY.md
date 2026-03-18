@@ -1,104 +1,94 @@
-# ZionApply 发布步骤
+# ZionApply 静态试用版上线步骤
 
 目标域名：`https://www.zionedu.cn`
 
-## 当前状态
+## 架构说明
 
-- 项目已经包含 `render.yaml`
-- 项目已经包含 `.env.example`
-- 项目已适配 `PoloAPI`
-- 项目目录已初始化为本地 Git 仓库
-- 当前 `www.zionedu.cn` 还没有 DNS 记录，查询结果是 `NXDOMAIN`
+这次上线走的是和 `majornavi.cn` 一样的思路：
 
-## 第一步：推到 GitHub
+- 页面托管在 `GitHub Pages`
+- 域名 DNS 放在阿里云解析
+- AI 请求由浏览器直接调用 `PoloAPI`
+- API key 由你在页面里手动填一次，保存在浏览器本地
 
-在项目目录执行：
+## 第一步：确认仓库
 
-```bash
-git add .
-git commit -m "Launch ZionApply"
-git branch -M main
-```
-
-然后创建 GitHub 仓库并关联：
-
-```bash
-git remote add origin <你的 GitHub 仓库地址>
-git push -u origin main
-```
-
-## 第二步：Render 部署
-
-1. 登录 Render
-2. 选择 `New +`
-3. 选择 `Blueprint`
-4. 连接刚才的 GitHub 仓库
-5. Render 会自动读取 `render.yaml`
-
-在 Render 环境变量里确认这些值：
-
-- `OPENAI_API_KEY`
-- `OPENAI_BASE_URL`
-- `OPENAI_MODEL=gpt-5`
-- `APP_BASE_URL=https://www.zionedu.cn`
-
-## 第三步：拿到 Render 临时域名
-
-部署完成后，你会拿到一个类似这样的地址：
+仓库已经推到：
 
 ```text
-https://zionapply.onrender.com
+git@github.com:marcuszuo/zionedu.git
 ```
 
-先确认它可以正常打开并登录、建档、生成文稿。
+## 第二步：启用 GitHub Pages
 
-## 第四步：绑定自定义域名
+1. 打开 GitHub 仓库 `marcuszuo/zionedu`
+2. 进入 `Settings`
+3. 左侧找到 `Pages`
+4. `Build and deployment` 选择：
+   - `Source: Deploy from a branch`
+   - `Branch: main`
+   - `Folder: / (root)`
+5. 保存
 
-在 Render 的服务设置里：
+几分钟后，GitHub 会给你一个 Pages 地址。
 
-1. 打开 `Settings`
-2. 找到 `Custom Domains`
-3. 添加：
+## 第三步：配置自定义域名
+
+在 GitHub Pages 页面里填：
 
 ```text
 www.zionedu.cn
 ```
 
-Render 会给你一个要填写到 DNS 的目标值。
+仓库根目录已经包含 `CNAME` 文件，所以 Pages 会按这个域名发布。
 
-## 第五步：配置 DNS
+## 第四步：阿里云 DNS 配置
 
-去你的域名服务商后台，为 `www` 添加：
+参考你现在的 `majornavi.cn`，给 `zionedu.cn` 加下面 5 条解析：
 
-- 记录类型：`CNAME`
-- 主机记录：`www`
-- 记录值：Render 提供的目标地址
+### 根域 `@`
 
-如果你还想让裸域可访问：
+- `A` -> `185.199.108.153`
+- `A` -> `185.199.109.153`
+- `A` -> `185.199.110.153`
+- `A` -> `185.199.111.153`
 
-- 可以把 `zionedu.cn` 做 URL 转发到 `https://www.zionedu.cn`
+### `www`
 
-## 第六步：等待证书生效
+- `CNAME` -> `marcuszuo.github.io`
 
-DNS 生效后，Render 会自动申请 HTTPS 证书。
+这就是 GitHub Pages 的标准解析方式。
 
-最终访问地址就是：
+## 第五步：等待生效
+
+通常需要几分钟到几十分钟，少数情况下 DNS 可能要更久。
+
+最终访问地址应为：
 
 ```text
 https://www.zionedu.cn
 ```
 
-## 上线后检查
+## 第六步：上线后首次试用
 
-至少检查这些页面：
+打开网站后，在右上角填：
 
-- 首页是否正常加载
-- 注册 / 登录是否可用
-- 学生建档是否可用
-- 文书生成是否可用
-- 降 AI 痕迹是否可用
-- 历史文稿是否保存
+- `API Base`: `https://api.newapi.life/v1`
+- `Model`: `gpt-5`
+- `API Key`: 你的 PoloAPI key
 
-## 备注
+点 `保存 API` 后，就可以直接试用：
 
-如果你愿意把 GitHub 仓库地址或 Render 临时域名发给我，我下一轮可以继续帮你做域名接入后的检查清单和上线后优化。
+- `PS`
+- `推荐信 RL`
+
+## 风险提醒
+
+这是最快上线方案，但属于试用架构：
+
+- 适合你自己或内部小范围试用
+- 不适合公开给大量用户长期使用
+- 浏览器直连 API 依赖目标接口允许跨域
+- 每个浏览器都要单独填写一次 key
+
+如果后面你要正式商用，再把后端和数据库版本接回来。

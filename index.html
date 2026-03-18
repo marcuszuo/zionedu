@@ -20,13 +20,13 @@
           <p class="nav-label">通用</p>
           <button class="nav-item">
             <span class="nav-icon">⌂</span>
-            <span>总览</span>
+            <span>试用总览</span>
           </button>
           <button class="nav-item active">
             <span class="nav-icon">▣</span>
             <span>学生档案</span>
           </button>
-          <button class="nav-item">
+          <button class="nav-item" data-trial-hidden>
             <span class="nav-icon">☰</span>
             <span>我的作品</span>
           </button>
@@ -34,81 +34,72 @@
 
         <nav class="nav-group">
           <p class="nav-label">文书写作</p>
-          <button class="nav-item">
-            <span class="nav-icon">✦</span>
-            <span>文书 Agent</span>
-          </button>
           <button class="nav-item" data-mode="ps">
             <span class="nav-icon">✎</span>
             <span>写 PS</span>
-          </button>
-          <button class="nav-item" data-mode="pe">
-            <span class="nav-icon">☑</span>
-            <span>命题文书</span>
           </button>
           <button class="nav-item" data-mode="rl">
             <span class="nav-icon">✉</span>
             <span>写推荐信</span>
           </button>
-          <button class="nav-item" data-mode="cv">
-            <span class="nav-icon">▤</span>
-            <span>写 CV</span>
-          </button>
-          <button class="nav-item" data-mode="fw">
-            <span class="nav-icon">◌</span>
-            <span>自由创作</span>
-          </button>
         </nav>
 
         <nav class="nav-group">
-          <p class="nav-label">工具</p>
+          <p class="nav-label">试用</p>
           <button class="nav-item">
             <span class="nav-icon">⌁</span>
-            <span>降 AI 率</span>
+            <span>自然化改写</span>
           </button>
         </nav>
 
-        <button class="recharge-btn">账户充值</button>
+        <button class="recharge-btn" id="trial-badge">Static Trial</button>
       </aside>
 
       <main class="main-content">
         <section class="topbar">
-          <div class="user-chip" id="user-chip">未登录</div>
-          <button class="ghost-btn compact-btn" id="logout-btn">退出登录</button>
+          <div class="user-chip">GitHub Pages 试用版</div>
+          <div class="topbar-actions">
+            <input class="compact-input" id="api-base-input" type="text" placeholder="https://api.newapi.life/v1" />
+            <input class="compact-input" id="api-model-input" type="text" placeholder="gpt-5" />
+            <input class="compact-input wide" id="api-key-input" type="password" placeholder="输入你的 PoloAPI Key" />
+            <button class="ghost-btn compact-btn" id="clear-api-config-btn">清除</button>
+            <button class="primary-btn compact-btn" id="save-api-config-btn">保存 API</button>
+          </div>
         </section>
 
         <section class="hero">
           <div>
             <p class="eyebrow">ZionApply</p>
-            <h1>从学生建档到文书生成，一套流程完成</h1>
+            <h1>先把 PS 和推荐信试起来，再决定完整版本怎么做</h1>
             <p class="hero-copy">
-              上传学生资料、识别关键信息、沉淀完整档案，再按申请目标快速生成
-              PS、推荐信、CV 和补充文书。
+              这是一版适合最快上线的静态试用站。它保留了学生档案、PS 生成、推荐信生成和自然化改写，
+              不依赖后端服务，也不保存历史记录。
             </p>
-            <p class="hero-status" id="hero-status">当前为可发布版工作流，等待连接 OpenAI API。</p>
+            <p class="hero-status" id="hero-status">静态试用版正在待命。</p>
+            <p class="setup-status" id="setup-status">未保存 API 配置。</p>
           </div>
 
           <div class="hero-actions">
-            <button class="primary-btn" id="open-modal-btn">新建学生档案</button>
-            <button class="ghost-btn" id="refresh-docs-btn">刷新生成记录</button>
+            <button class="primary-btn" id="open-modal-btn">新建试用档案</button>
+            <button class="ghost-btn" data-open-student-modal>快速添加学生</button>
           </div>
         </section>
 
         <section class="overview-grid">
           <article class="stat-card">
-            <span class="stat-kicker">档案数</span>
-            <strong>128</strong>
-            <p>支持手动录入、问卷上传、成绩单解析</p>
+            <span class="stat-kicker">试用保留</span>
+            <strong>PS / RL</strong>
+            <p>保留最核心的两类文书生成入口，适合先验证市场和体验。</p>
           </article>
           <article class="stat-card">
-            <span class="stat-kicker">本周生成</span>
-            <strong>392</strong>
-            <p>PS、RL、CV、Essay 多模板联动产出</p>
+            <span class="stat-kicker">部署方式</span>
+            <strong>GitHub Pages</strong>
+            <p>和 `majornavi.cn` 一样走静态托管，最快可以直接绑定新域名。</p>
           </article>
           <article class="stat-card accent">
-            <span class="stat-kicker">推荐动作</span>
-            <strong>完善 6 份学生档案</strong>
-            <p>信息越完整，生成的文书越稳定、越像真人。</p>
+            <span class="stat-kicker">安全方式</span>
+            <strong>Key 只存在浏览器本地</strong>
+            <p>不会把你的 API key 写进 GitHub 仓库，也不会公开暴露在页面源码里。</p>
           </article>
         </section>
 
@@ -122,7 +113,7 @@
               <div class="header-actions">
                 <button class="text-btn danger-text-btn" id="delete-student-btn">删除当前档案</button>
                 <button class="text-btn" id="edit-student-btn">编辑当前档案</button>
-                <button class="text-btn" id="inline-open-modal-btn">创建客户</button>
+                <button class="text-btn" data-open-student-modal>创建客户</button>
               </div>
             </div>
 
@@ -146,41 +137,6 @@
                 </p>
               </article>
 
-              <article class="student-card" data-student="kevin">
-                <div class="student-topline">
-                  <div>
-                    <h3>Kevin Li</h3>
-                    <p>英港新申请 · 金融 / Business Analytics</p>
-                  </div>
-                  <span class="status-badge pending">待补充</span>
-                </div>
-                <div class="tag-row">
-                  <span>GPA 3.56</span>
-                  <span>GMAT 690</span>
-                  <span>商赛经历</span>
-                </div>
-                <p class="student-summary">
-                  缺少推荐人信息和核心故事线，建议先补充再开始生成 PS。
-                </p>
-              </article>
-
-              <article class="student-card" data-student="sophia">
-                <div class="student-topline">
-                  <div>
-                    <h3>Sophia Chen</h3>
-                    <p>研究生申请 · 教育学 / TESOL</p>
-                  </div>
-                  <span class="status-badge review">待确认</span>
-                </div>
-                <div class="tag-row">
-                  <span>GPA 3.91</span>
-                  <span>雅思 8.0</span>
-                  <span>支教经历</span>
-                </div>
-                <p class="student-summary">
-                  智能建档已识别出教学实践和研究兴趣，等待顾问确认目标项目。
-                </p>
-              </article>
             </div>
           </div>
 
@@ -188,7 +144,7 @@
             <div class="panel-header">
               <div>
                 <p class="panel-title">文书生成工作台</p>
-                <p class="panel-subtitle">基于学生档案，一键调用多种写作模板</p>
+                <p class="panel-subtitle">静态试用版仅保留 PS 与推荐信两类生成</p>
               </div>
               <span class="ai-badge">GPT Powered</span>
             </div>
@@ -202,15 +158,15 @@
                 <strong>推荐信 RL</strong>
                 <span>按推荐人视角生成可信、具体的支持信</span>
               </button>
-              <button class="template-card" data-template="cv">
+              <button class="template-card" data-trial-hidden data-template="cv">
                 <strong>简历 CV</strong>
                 <span>自动按申请方向重组经历亮点</span>
               </button>
-              <button class="template-card" data-template="pe">
+              <button class="template-card" data-trial-hidden data-template="pe">
                 <strong>命题文书</strong>
                 <span>适配学校补充题、Why School、Career Goal</span>
               </button>
-              <button class="template-card" data-template="fw">
+              <button class="template-card" data-trial-hidden data-template="fw">
                 <strong>自由创作</strong>
                 <span>不受固定模板约束，自定义写作指令和结构</span>
               </button>
@@ -350,13 +306,13 @@
 
               <div class="saved-docs panel-lite">
                 <div class="panel-header">
-                  <div>
-                    <p class="panel-title">文稿历史</p>
-                    <p class="panel-subtitle">自动保存每次生成与优化结果</p>
-                  </div>
+                <div>
+                  <p class="panel-title">文稿历史</p>
+                  <p class="panel-subtitle">静态试用版不保存历史，仅支持即时导出</p>
                 </div>
-                <div class="doc-list" id="doc-list">
-                  <p class="empty-copy">登录后会显示你的历史文稿。</p>
+              </div>
+              <div class="doc-list" id="doc-list">
+                  <p class="empty-copy">静态试用版不保存历史文稿。</p>
                 </div>
               </div>
             </div>
@@ -365,70 +321,50 @@
       </main>
     </div>
 
-    <div class="auth-backdrop" id="auth-backdrop">
-      <section class="auth-panel">
-        <div class="auth-header">
-          <h2>登录你的 ZionApply 工作台</h2>
-          <p>学生档案、生成记录和 AI 建档结果会自动保存到你的账户。</p>
-        </div>
-        <div class="auth-tabs">
-          <button class="auth-tab active" data-auth-mode="login">登录</button>
-          <button class="auth-tab" data-auth-mode="register">注册</button>
-        </div>
-        <div class="auth-form">
-          <label class="field auth-name-field hidden" id="auth-name-field">
-            <span>姓名</span>
-            <input type="text" id="auth-name-input" placeholder="输入你的姓名或团队昵称" />
-          </label>
-          <label class="field">
-            <span>邮箱</span>
-            <input type="email" id="auth-email-input" placeholder="you@example.com" />
-          </label>
-          <label class="field">
-            <span>密码</span>
-            <input type="password" id="auth-password-input" placeholder="至少 6 位密码" />
-          </label>
-          <button class="primary-btn" id="auth-submit-btn">登录并进入</button>
-          <p class="auth-status" id="auth-status">先登录，系统才会保存学生档案和文稿历史。</p>
-        </div>
-      </section>
-    </div>
-
     <div class="modal-backdrop hidden" id="modal-backdrop">
       <section class="modal">
         <div class="modal-header">
-          <h2>创建客户</h2>
+          <h2>创建试用档案</h2>
           <button class="icon-btn" id="close-modal-btn" aria-label="关闭">×</button>
         </div>
 
         <label class="field">
-          <span>昵称</span>
-          <input type="text" placeholder="输入客户昵称，仅自己可见" id="student-name-input" />
+          <span>学生姓名</span>
+          <input type="text" placeholder="输入学生姓名" id="student-name-input" />
         </label>
-
-        <div class="toggle-row">
-          <button class="switch on" id="smart-toggle" aria-pressed="true">
-            <span class="switch-thumb"></span>
-          </button>
-          <div>
-            <strong>智能建档？</strong>
-            <p>上传信息收集表、简历、成绩单或图片，由 AI 自动识别并生成学生档案。</p>
-          </div>
-        </div>
-
-        <div class="upload-card">
-          <p class="upload-title">AI 智能建档</p>
-          <p class="upload-copy">
-            上传客户信息收集表，自动识别内容完成学生档案建立，免于重复操作。
-          </p>
-          <label class="dropzone" for="file-input">
-            <input id="file-input" type="file" multiple hidden />
-            <div class="dropzone-icon">⌲</div>
-            <strong>拖拽文档到这里</strong>
-            <span>或点击选择文件</span>
-            <small>支持格式：pdf, docx, doc, txt, png, jpg, jpeg, gif, webp</small>
+        <div class="generator-form">
+          <label class="field">
+            <span>申请阶段</span>
+            <input type="text" placeholder="如：美本申请 / 研究生申请" id="student-track-input" />
           </label>
-          <ul class="upload-list" id="upload-list"></ul>
+          <label class="field">
+            <span>申请方向</span>
+            <input type="text" placeholder="如：Computer Science / Education" id="student-program-field" />
+          </label>
+          <label class="field">
+            <span>档案摘要</span>
+            <textarea rows="3" id="student-summary-input" placeholder="用 1-2 句话概括学生背景和申请方向"></textarea>
+          </label>
+          <label class="field">
+            <span>重点强调</span>
+            <textarea rows="4" id="student-focus-field" placeholder="告诉 AI 生成时最应该强调什么"></textarea>
+          </label>
+          <label class="field">
+            <span>标签</span>
+            <input type="text" id="student-tags-input" placeholder="如：GPA 3.8，实习，科研" />
+          </label>
+          <label class="field">
+            <span>亮点</span>
+            <textarea rows="3" id="student-highlights-input" placeholder="每行一个亮点，或用逗号分隔"></textarea>
+          </label>
+          <label class="field">
+            <span>证据</span>
+            <textarea rows="3" id="student-evidence-input" placeholder="每行一个事例，或用逗号分隔"></textarea>
+          </label>
+          <label class="field">
+            <span>申请策略</span>
+            <textarea rows="3" id="student-strategy-input" placeholder="每行一条策略建议，或用逗号分隔"></textarea>
+          </label>
         </div>
 
         <div class="modal-actions">

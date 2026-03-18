@@ -1,21 +1,26 @@
-const AUTH_TOKEN_KEY = "edupro_auth_token";
+const API_KEY_STORAGE = "zionapply_api_key";
+const API_BASE_STORAGE = "zionapply_api_base";
+const API_MODEL_STORAGE = "zionapply_api_model";
 
 const modalBackdrop = document.getElementById("modal-backdrop");
-const authBackdrop = document.getElementById("auth-backdrop");
 const openModalButtons = [
   document.getElementById("open-modal-btn"),
-  document.getElementById("inline-open-modal-btn"),
+  ...document.querySelectorAll("[data-open-student-modal]"),
 ];
 const closeModalButtons = [
   document.getElementById("close-modal-btn"),
   document.getElementById("cancel-modal-btn"),
 ];
-const smartToggle = document.getElementById("smart-toggle");
-const fileInput = document.getElementById("file-input");
-const uploadList = document.getElementById("upload-list");
-const dropzone = document.querySelector(".dropzone");
 const createStudentButton = document.getElementById("create-student-btn");
 const studentNameInput = document.getElementById("student-name-input");
+const studentTrackInput = document.getElementById("student-track-input");
+const studentProgramField = document.getElementById("student-program-field");
+const studentSummaryInput = document.getElementById("student-summary-input");
+const studentFocusField = document.getElementById("student-focus-field");
+const studentTagsInput = document.getElementById("student-tags-input");
+const studentHighlightsInput = document.getElementById("student-highlights-input");
+const studentEvidenceInput = document.getElementById("student-evidence-input");
+const studentStrategyInput = document.getElementById("student-strategy-input");
 const studentList = document.getElementById("student-list");
 const templateCards = document.querySelectorAll(".template-card");
 const modeNavItems = document.querySelectorAll(".nav-item[data-mode]");
@@ -38,13 +43,14 @@ const heroStatus = document.getElementById("hero-status");
 const insightHighlights = document.getElementById("insight-highlights");
 const insightEvidence = document.getElementById("insight-evidence");
 const insightStrategy = document.getElementById("insight-strategy");
-const docList = document.getElementById("doc-list");
-const userChip = document.getElementById("user-chip");
-const logoutButton = document.getElementById("logout-btn");
-const refreshDocsButton = document.getElementById("refresh-docs-btn");
+const setupStatus = document.getElementById("setup-status");
+const apiKeyInput = document.getElementById("api-key-input");
+const apiBaseInput = document.getElementById("api-base-input");
+const apiModelInput = document.getElementById("api-model-input");
+const saveApiConfigButton = document.getElementById("save-api-config-btn");
+const clearApiConfigButton = document.getElementById("clear-api-config-btn");
 const editStudentButton = document.getElementById("edit-student-btn");
 const deleteStudentButton = document.getElementById("delete-student-btn");
-
 const studentEditBackdrop = document.getElementById("student-edit-backdrop");
 const closeEditStudentButton = document.getElementById("close-edit-student-btn");
 const cancelEditStudentButton = document.getElementById("cancel-edit-student-btn");
@@ -55,54 +61,44 @@ const editStudentProgramInput = document.getElementById("edit-student-program");
 const editStudentSummaryInput = document.getElementById("edit-student-summary");
 const editStudentFocusInput = document.getElementById("edit-student-focus");
 const editStudentTagsInput = document.getElementById("edit-student-tags");
-
-const authTabs = document.querySelectorAll(".auth-tab");
-const authNameField = document.getElementById("auth-name-field");
-const authNameInput = document.getElementById("auth-name-input");
-const authEmailInput = document.getElementById("auth-email-input");
-const authPasswordInput = document.getElementById("auth-password-input");
-const authSubmitButton = document.getElementById("auth-submit-btn");
-const authStatus = document.getElementById("auth-status");
+const trialBadge = document.getElementById("trial-badge");
+const trimTemplates = document.querySelectorAll("[data-trial-hidden]");
+const docList = document.getElementById("doc-list");
 
 const templateMeta = {
-  ps: { title: "个人陈述 PS", subtitle: "结合学生档案内容输出首版 PS", aiScore: "AI率 18%" },
-  rl: { title: "推荐信 RL", subtitle: "基于推荐人视角输出可信、具体的推荐信", aiScore: "AI率 14%" },
-  cv: { title: "简历 CV", subtitle: "围绕申请方向自动重组学生经历与成果", aiScore: "AI率 11%" },
-  pe: { title: "命题文书 PE", subtitle: "针对补充题目生成结构清晰、针对性强的回应", aiScore: "AI率 16%" },
-  fw: { title: "自由创作 FW", subtitle: "按自定义指令生成非标准化的申请文书内容", aiScore: "AI率 13%" },
+  ps: { title: "个人陈述 PS", subtitle: "围绕成长轨迹、动机与项目匹配写首版 PS", aiScore: "试用输出" },
+  rl: { title: "推荐信 RL", subtitle: "以推荐人视角输出具体可信的推荐信", aiScore: "试用输出" },
 };
 
 const seedStudents = {
   emily: {
+    id: "emily",
     displayName: "Emily Zhang",
     applicationTrack: "美本申请",
     targetProgram: "Digital Media / Interactive Storytelling",
-    statusLabel: "档案完整",
+    statusLabel: "可生成",
     statusTone: "ready",
-    tags: ["GPA 3.82", "IELTS 7.5", "3 段实习", "影像项目"],
-    summary: "AI 已提取教育背景、活动经历、奖项、目标院校偏好，可直接进入文书生成。",
-    highlights: ["纪录片拍摄与数字叙事转向", "跨媒体项目协调与表达能力", "作品有明确社会议题视角"],
-    evidence: ["校内短片获奖", "学生媒体 campaign 项目", "2 段内容/创意相关实习"],
-    strategy: ["避免只写热爱传媒", "强化交互叙事与创意科技结合", "推荐信需突出协作与执行力"],
+    tags: ["GPA 3.82", "IELTS 7.5", "纪录片", "交互叙事"],
+    summary: "擅长把影像表达转化为数字叙事，申请故事线完整，适合先试 PS 或推荐信。",
+    highlights: ["纪录片拍摄转向数字叙事", "能统筹内容项目并推进协作", "作品关注社会议题与互动体验"],
+    evidence: ["校内短片获奖", "学生媒体 campaign 项目", "创意内容方向 2 段实习"],
+    strategy: ["PS 先写转向契机", "突出跨学科创作能力", "RL 要强调执行力和带团队能力"],
     tone: "真诚、有反思感",
-    focus: "请突出她从纪录片拍摄到数字叙事方向的转变，强调跨学科能力、项目影响力，以及为什么适合申请偏创意科技的项目。",
+    focus: "突出她从纪录片拍摄走向数字叙事的转变，强调跨学科能力、项目影响力，以及与创意科技项目的匹配。",
     recommenderRole: "影视叙事课程导师",
     relationshipDuration: "2 年",
-    recommendationEvidence: "请写出她在课程项目中如何独立完成纪录片策划、采访和后期剪辑，同时能带动组员协作推进项目。",
+    recommendationEvidence: "她在课程项目中独立完成选题、采访、后期剪辑，并主动协调组员完成拍摄排期。",
   },
 };
 
 const state = {
-  authMode: "login",
-  token: localStorage.getItem(AUTH_TOKEN_KEY) || "",
-  user: null,
-  uploadedFiles: [],
-  students: { ...seedStudents },
+  students: structuredClone(seedStudents),
   studentOrder: Object.keys(seedStudents),
   selectedStudent: "emily",
   selectedTemplate: "ps",
-  documents: [],
-  currentDocument: [],
+  currentDocument: [
+    "这里会显示 AI 生成的内容。先在右上角填入你的 PoloAPI 信息，再点击“生成初稿”即可开始试用。",
+  ],
 };
 
 function escapeHtml(value) {
@@ -112,6 +108,21 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 32) || `student-${Date.now()}`;
+}
+
+function splitList(value) {
+  return String(value || "")
+    .split(/[\n,，、；;]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function setHeroStatus(message, variant = "info") {
@@ -131,30 +142,47 @@ function getSelectedProfile() {
   return state.students[state.selectedStudent] || state.students[state.studentOrder[0]];
 }
 
-async function apiFetch(path, options = {}) {
-  const headers = new Headers(options.headers || {});
-  if (state.token) {
-    headers.set("Authorization", `Bearer ${state.token}`);
-  }
-  const response = await fetch(path, { ...options, headers });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    if (response.status === 401) {
-      clearAuth();
-      throw new Error("登录状态已失效，请重新登录。");
-    }
-    throw new Error(data.error || "请求失败");
-  }
-  return data;
+function getApiConfig() {
+  return {
+    apiKey: localStorage.getItem(API_KEY_STORAGE) || "",
+    baseUrl: localStorage.getItem(API_BASE_STORAGE) || "https://api.newapi.life/v1",
+    model: localStorage.getItem(API_MODEL_STORAGE) || "gpt-5",
+  };
 }
 
-function renderFiles() {
-  uploadList.innerHTML = "";
-  state.uploadedFiles.forEach((file) => {
-    const li = document.createElement("li");
-    li.textContent = `${file.name} · ${Math.max(1, Math.round(file.size / 1024))} KB`;
-    uploadList.appendChild(li);
-  });
+function renderApiConfig() {
+  const config = getApiConfig();
+  apiKeyInput.value = config.apiKey;
+  apiBaseInput.value = config.baseUrl;
+  apiModelInput.value = config.model;
+  setupStatus.textContent = config.apiKey
+    ? "已保存浏览器本地 API 配置，可直接生成。"
+    : "未保存 API Key。静态站上线后，需要你先在本浏览器里填一次才能生成。";
+}
+
+function saveApiConfig() {
+  const apiKey = apiKeyInput.value.trim();
+  const baseUrl = apiBaseInput.value.trim().replace(/\/+$/, "");
+  const model = apiModelInput.value.trim() || "gpt-5";
+
+  if (!apiKey) {
+    setupStatus.textContent = "请先输入 API Key。";
+    return;
+  }
+
+  localStorage.setItem(API_KEY_STORAGE, apiKey);
+  localStorage.setItem(API_BASE_STORAGE, baseUrl || "https://api.newapi.life/v1");
+  localStorage.setItem(API_MODEL_STORAGE, model);
+  renderApiConfig();
+  setHeroStatus("API 配置已保存到当前浏览器，本次试用可以直接生成。", "success");
+}
+
+function clearApiConfig() {
+  localStorage.removeItem(API_KEY_STORAGE);
+  localStorage.removeItem(API_BASE_STORAGE);
+  localStorage.removeItem(API_MODEL_STORAGE);
+  renderApiConfig();
+  setHeroStatus("已清除浏览器本地 API 配置。", "warning");
 }
 
 function renderInsightList(element, items) {
@@ -191,55 +219,7 @@ function renderStudentList() {
     card.addEventListener("click", () => {
       state.selectedStudent = card.dataset.student;
       syncAll();
-      setHeroStatus(`已切换到 ${getSelectedProfile().displayName} 的学生档案。`, "info");
-    });
-  });
-}
-
-function renderDocuments() {
-  if (!state.documents.length) {
-    docList.innerHTML = '<p class="empty-copy">还没有历史文稿，先生成一版试试。</p>';
-    return;
-  }
-
-  docList.innerHTML = state.documents
-    .slice(0, 8)
-    .map(
-      (doc) => `
-        <article class="doc-item" data-document-id="${escapeHtml(doc.id)}">
-          <strong>${escapeHtml(doc.title || "未命名文稿")}</strong>
-          <span>${escapeHtml(doc.studentName || "未命名学生")} · ${escapeHtml(doc.template || "文稿")} · ${escapeHtml(doc.aiScore || "")}</span>
-          <button class="text-btn danger-text-btn" data-delete-document-id="${escapeHtml(doc.id)}">删除</button>
-        </article>
-      `
-    )
-    .join("");
-
-  docList.querySelectorAll(".doc-item").forEach((item) => {
-    item.addEventListener("click", async () => {
-      try {
-        const data = await apiFetch(`/api/documents/${item.dataset.documentId}`);
-        renderOutput(data.document);
-        setHeroStatus("已打开历史文稿详情。", "success");
-      } catch (error) {
-        setHeroStatus(error.message || "打开文稿失败。", "danger");
-      }
-    });
-  });
-
-  docList.querySelectorAll("[data-delete-document-id]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      if (!window.confirm("确认删除这篇历史文稿吗？")) {
-        return;
-      }
-      try {
-        await apiFetch(`/api/documents/${button.dataset.deleteDocumentId}`, { method: "DELETE" });
-        await refreshDocuments();
-        setHeroStatus("历史文稿已删除。", "success");
-      } catch (error) {
-        setHeroStatus(error.message || "删除文稿失败。", "danger");
-      }
+      setHeroStatus(`已切换到 ${getSelectedProfile().displayName} 的试用档案。`, "info");
     });
   });
 }
@@ -260,9 +240,7 @@ function syncFormWithStudent() {
   focusInput.value = profile.focus || "";
   recommenderRole.value = profile.recommenderRole || "授课教师 / 项目导师";
   relationshipDuration.value = profile.relationshipDuration || "1-2 年";
-  recommendationEvidence.value = Array.isArray(profile.recommendationEvidence)
-    ? profile.recommendationEvidence.join("；")
-    : profile.recommendationEvidence || "";
+  recommendationEvidence.value = profile.recommendationEvidence || "";
 }
 
 function syncTemplateState() {
@@ -282,7 +260,6 @@ function syncAll() {
   renderInsights(getSelectedProfile());
   syncFormWithStudent();
   syncTemplateState();
-  renderDocuments();
 }
 
 function openModal() {
@@ -300,7 +277,7 @@ function openStudentEditor() {
   editStudentProgramInput.value = profile.targetProgram || "";
   editStudentSummaryInput.value = profile.summary || "";
   editStudentFocusInput.value = profile.focus || "";
-  editStudentTagsInput.value = Array.isArray(profile.tags) ? profile.tags.join("，") : profile.tags || "";
+  editStudentTagsInput.value = Array.isArray(profile.tags) ? profile.tags.join("，") : "";
   studentEditBackdrop.classList.remove("hidden");
 }
 
@@ -308,179 +285,92 @@ function closeStudentEditor() {
   studentEditBackdrop.classList.add("hidden");
 }
 
-function handleFiles(files) {
-  [...files].forEach((file) => state.uploadedFiles.push(file));
-  renderFiles();
-}
-
-function setAuthMode(mode) {
-  state.authMode = mode;
-  authTabs.forEach((tab) => {
-    tab.classList.toggle("active", tab.dataset.authMode === mode);
-  });
-  authNameField.classList.toggle("hidden", mode !== "register");
-  authSubmitButton.textContent = mode === "register" ? "注册并进入" : "登录并进入";
-}
-
-function showAuth() {
-  authBackdrop.classList.remove("hidden");
-}
-
-function hideAuth() {
-  authBackdrop.classList.add("hidden");
-}
-
-function clearAuth() {
-  state.token = "";
-  state.user = null;
-  localStorage.removeItem(AUTH_TOKEN_KEY);
-  userChip.textContent = "未登录";
-  showAuth();
-}
-
-function applyAuth(user, token) {
-  state.user = user;
-  state.token = token;
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
-  userChip.textContent = `${user.name} · ${user.email}`;
-  hideAuth();
-}
-
-async function submitAuth() {
-  authSubmitButton.disabled = true;
-  authStatus.textContent = state.authMode === "register" ? "正在创建账户..." : "正在登录...";
-
-  try {
-    const payload =
-      state.authMode === "register"
-        ? {
-            name: authNameInput.value.trim(),
-            email: authEmailInput.value.trim(),
-            password: authPasswordInput.value,
-          }
-        : {
-            email: authEmailInput.value.trim(),
-            password: authPasswordInput.value,
-          };
-    const path = state.authMode === "register" ? "/api/auth/register" : "/api/auth/login";
-    const data = await apiFetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    applyAuth(data.user, data.token);
-    authStatus.textContent = "登录成功。";
-    setHeroStatus(`欢迎回来，${data.user.name}。`, "success");
-    await loadWorkspace();
-  } catch (error) {
-    authStatus.textContent = error.message || "登录失败。";
-  } finally {
-    authSubmitButton.disabled = false;
-  }
-}
-
-function normalizeStudent(student) {
+function buildStudentFromModal() {
+  const name = studentNameInput.value.trim() || "未命名学生";
+  const key = slugify(name);
   return {
-    ...student,
-    recommendationEvidence: Array.isArray(student.recommendationEvidence)
-      ? student.recommendationEvidence.join("；")
-      : student.recommendationEvidence,
-  };
-}
-
-async function loadWorkspace() {
-  const data = await apiFetch("/api/auth/me");
-  state.user = data.user;
-  userChip.textContent = `${data.user.name} · ${data.user.email}`;
-
-  if (data.students.length) {
-    state.students = {};
-    state.studentOrder = [];
-    data.students.forEach((student) => {
-      state.students[student.id] = normalizeStudent(student);
-      state.studentOrder.push(student.id);
-    });
-    state.selectedStudent = state.studentOrder[0];
-  } else {
-    state.students = { ...seedStudents };
-    state.studentOrder = Object.keys(seedStudents);
-    state.selectedStudent = state.studentOrder[0];
-  }
-
-  state.documents = data.documents || [];
-  syncAll();
-}
-
-function buildManualStudent(name) {
-  return {
+    id: key,
     displayName: name,
-    applicationTrack: "手动建档",
-    targetProgram: "待补充目标专业 / 项目",
-    statusLabel: "待补充",
-    statusTone: "review",
-    tags: ["待识别", `${state.uploadedFiles.length || 0} 份材料`, "可手动补充"],
-    summary: "已创建学生档案。你可以继续补充项目方向、经历亮点和推荐人信息，再开始生成文书。",
-    highlights: ["等待补充学生亮点", "等待补充可验证经历", "等待确认申请方向"],
-    evidence: ["等待上传更多材料", "等待录入活动与奖项", "等待补充课程和成绩"],
-    strategy: ["先补目标项目", "再补经历证据", "最后开始生成文书"],
+    applicationTrack: studentTrackInput.value.trim() || "待补充申请阶段",
+    targetProgram: studentProgramField.value.trim() || "待补充申请方向",
+    statusLabel: "可生成",
+    statusTone: "ready",
+    tags: splitList(studentTagsInput.value),
+    summary: studentSummaryInput.value.trim() || "已创建试用档案，可以直接开始生成 PS 或推荐信。",
+    highlights: splitList(studentHighlightsInput.value),
+    evidence: splitList(studentEvidenceInput.value),
+    strategy: splitList(studentStrategyInput.value),
     tone: "真诚、有反思感",
-    focus: "请补充学生的关键经历、申请目标、项目匹配点和成长线索。",
+    focus: studentFocusField.value.trim() || "请突出学生的成长线索、项目证据和申请项目匹配度。",
     recommenderRole: "授课教师 / 项目导师",
     relationshipDuration: "1-2 年",
-    recommendationEvidence: "请补充推荐人观察到的课程表现、项目协作和成长速度。",
+    recommendationEvidence: "请补充推荐人视角下最有说服力的一两个观察事例。",
   };
 }
 
-async function createStudent() {
+function resetModalForm() {
+  studentNameInput.value = "";
+  studentTrackInput.value = "";
+  studentProgramField.value = "";
+  studentSummaryInput.value = "";
+  studentFocusField.value = "";
+  studentTagsInput.value = "";
+  studentHighlightsInput.value = "";
+  studentEvidenceInput.value = "";
+  studentStrategyInput.value = "";
+}
+
+function createStudent() {
   createStudentButton.disabled = true;
   createStudentButton.textContent = "处理中...";
 
   try {
-    const nickname = studentNameInput.value.trim() || "未命名学生";
-    const useSmartArchive = smartToggle.classList.contains("on");
-    let profile;
-
-    if (useSmartArchive && state.uploadedFiles.length > 0) {
-      const formData = new FormData();
-      formData.append("nickname", nickname);
-      state.uploadedFiles.forEach((file) => formData.append("files", file));
-      const data = await apiFetch("/api/profile/extract", {
-        method: "POST",
-        body: formData,
-      });
-      profile = normalizeStudent(data.profile);
-      setHeroStatus(`已完成 ${profile.displayName} 的 AI 建档。`, "success");
-    } else {
-      const data = await apiFetch("/api/students/manual", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile: buildManualStudent(nickname) }),
-      });
-      profile = normalizeStudent(data.profile);
-      setHeroStatus("已创建手动档案，可以直接继续生成文书。", "success");
-    }
-
+    const profile = buildStudentFromModal();
     state.students[profile.id] = profile;
     state.studentOrder = [profile.id, ...state.studentOrder.filter((item) => item !== profile.id)];
     state.selectedStudent = profile.id;
     syncAll();
-
-    state.uploadedFiles = [];
-    renderFiles();
-    studentNameInput.value = "";
     closeModal();
-  } catch (error) {
-    setHeroStatus(error.message || "学生建档失败。", "danger");
+    resetModalForm();
+    setHeroStatus(`已创建 ${profile.displayName} 的试用档案。`, "success");
   } finally {
     createStudentButton.disabled = false;
     createStudentButton.textContent = "确认创建";
   }
 }
 
-function collectWriterPayload(mode) {
+function saveStudentEdits() {
+  const profile = getSelectedProfile();
+  profile.displayName = editStudentNameInput.value.trim() || profile.displayName;
+  profile.applicationTrack = editStudentTrackInput.value.trim() || profile.applicationTrack;
+  profile.targetProgram = editStudentProgramInput.value.trim() || profile.targetProgram;
+  profile.summary = editStudentSummaryInput.value.trim() || profile.summary;
+  profile.focus = editStudentFocusInput.value.trim() || profile.focus;
+  profile.tags = splitList(editStudentTagsInput.value);
+  syncAll();
+  closeStudentEditor();
+  setHeroStatus("已更新当前试用档案。", "success");
+}
+
+function deleteCurrentStudent() {
+  if (state.studentOrder.length === 1) {
+    setHeroStatus("至少保留一个试用档案，方便继续生成。", "warning");
+    return;
+  }
+  const profile = getSelectedProfile();
+  if (!window.confirm(`确认删除 ${profile.displayName} 吗？`)) {
+    return;
+  }
+  delete state.students[profile.id];
+  state.studentOrder = state.studentOrder.filter((item) => item !== profile.id);
+  state.selectedStudent = state.studentOrder[0];
+  syncAll();
+  setHeroStatus("已删除当前试用档案。", "success");
+}
+
+function collectWriterPayload(requestMode) {
   return {
-    mode,
+    requestMode,
     template: state.selectedTemplate,
     studentProfile: getSelectedProfile(),
     targetProgram: programInput.value.trim(),
@@ -492,171 +382,181 @@ function collectWriterPayload(mode) {
   };
 }
 
-async function refreshDocuments() {
-  const data = await apiFetch("/api/documents");
-  state.documents = data.documents || [];
-  renderDocuments();
+function buildSystemPrompt() {
+  return [
+    "你是 ZionApply 的资深留学文书顾问。",
+    "输出语言默认与用户输入一致。",
+    "不要使用空洞套话，不要泛泛而谈。",
+    "必须基于学生背景、目标项目、证据和写作任务生成具体内容。",
+    "输出使用自然段，不要加 markdown 标题或项目符号，除非任务明确要求大纲。",
+  ].join("\n");
 }
 
-async function saveStudentEdits() {
-  const profile = getSelectedProfile();
-  saveEditStudentButton.disabled = true;
-  saveEditStudentButton.textContent = "保存中...";
+function buildUserPrompt(payload) {
+  const profile = payload.studentProfile;
+  const common = [
+    `任务：${payload.requestMode === "outline" ? "生成写作大纲" : "生成完整文稿"}`,
+    `模板：${payload.template === "ps" ? "个人陈述 PS" : "推荐信 RL"}`,
+    `学生姓名：${profile.displayName}`,
+    `申请阶段：${profile.applicationTrack}`,
+    `目标项目：${payload.targetProgram || profile.targetProgram}`,
+    `写作语气：${payload.tone}`,
+    `学生摘要：${profile.summary}`,
+    `亮点：${(profile.highlights || []).join("；")}`,
+    `证据：${(profile.evidence || []).join("；")}`,
+    `申请策略：${(profile.strategy || []).join("；")}`,
+    `重点强调：${payload.focus || profile.focus}`,
+  ];
 
-  try {
-    const data = await apiFetch(`/api/students/${profile.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        profile: {
-          displayName: editStudentNameInput.value.trim(),
-          applicationTrack: editStudentTrackInput.value.trim(),
-          targetProgram: editStudentProgramInput.value.trim(),
-          summary: editStudentSummaryInput.value.trim(),
-          focus: editStudentFocusInput.value.trim(),
-          tags: editStudentTagsInput.value
-            .split(/[,，、]/)
-            .map((item) => item.trim())
-            .filter(Boolean),
-        },
-      }),
-    });
-
-    state.students[profile.id] = normalizeStudent(data.profile);
-    syncAll();
-    closeStudentEditor();
-    setHeroStatus("学生档案已更新。", "success");
-  } catch (error) {
-    setHeroStatus(error.message || "保存档案失败。", "danger");
-  } finally {
-    saveEditStudentButton.disabled = false;
-    saveEditStudentButton.textContent = "保存档案";
+  if (payload.template === "rl") {
+    common.push(`推荐人身份：${payload.recommenderRole}`);
+    common.push(`认识时长：${payload.relationshipDuration}`);
+    common.push(`推荐信重点事例：${payload.recommendationEvidence}`);
+    common.push("请用推荐人第一人称写作，避免像学生自述。");
+  } else {
+    common.push("请用第一人称写作，形成完整个人陈述。");
   }
+
+  if (payload.requestMode === "outline") {
+    common.push("请输出 4 到 6 段结构大纲，每段说明作用和要写的证据。");
+  } else {
+    common.push("请输出一版可直接继续修改的首稿，长度控制在 600 到 850 英文单词左右。");
+  }
+
+  return common.join("\n");
 }
 
-async function deleteCurrentStudent() {
-  const profile = getSelectedProfile();
-  if (!profile?.id) {
-    setHeroStatus("示例档案不能删除，先创建或登录你的真实档案。", "warning");
-    return;
+async function runCompletion(messages) {
+  const config = getApiConfig();
+  if (!config.apiKey) {
+    throw new Error("请先在右上角保存 API Key。");
   }
 
-  if (!window.confirm(`确认删除 ${profile.displayName} 的档案及关联文稿吗？`)) {
-    return;
+  const response = await fetch(`${config.baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${config.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: config.model,
+      messages,
+      temperature: 0.8,
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error?.message || data.error || "AI 请求失败，请检查 API 配置或稍后重试。");
   }
 
-  try {
-    await apiFetch(`/api/students/${profile.id}`, { method: "DELETE" });
-    await loadWorkspace();
-    setHeroStatus("学生档案已删除。", "success");
-  } catch (error) {
-    setHeroStatus(error.message || "删除学生失败。", "danger");
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error("模型没有返回可用内容。");
   }
+  return content;
+}
+
+function textToParagraphs(text) {
+  return String(text)
+    .split(/\n{2,}/)
+    .map((item) => item.replace(/\n/g, " ").trim())
+    .filter(Boolean);
 }
 
 async function generateDocument(mode) {
+  const payload = collectWriterPayload(mode);
+  const label = mode === "outline" ? "生成大纲" : "生成初稿";
   const button = mode === "outline" ? generateOutlineButton : generateDraftButton;
-  const label = button.textContent;
+  const original = button.textContent;
   button.disabled = true;
-  button.textContent = mode === "outline" ? "生成中..." : "写作中...";
+  button.textContent = "生成中...";
 
   try {
-    const result = await apiFetch("/api/writer/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(collectWriterPayload(mode)),
+    const content = await runCompletion([
+      { role: "system", content: buildSystemPrompt() },
+      { role: "user", content: buildUserPrompt(payload) },
+    ]);
+    renderOutput({
+      title: templateMeta[state.selectedTemplate].title,
+      subtitle: mode === "outline" ? "AI 已生成结构大纲" : templateMeta[state.selectedTemplate].subtitle,
+      aiScore: "实时生成",
+      content: textToParagraphs(content),
     });
-    renderOutput(result);
-    await refreshDocuments();
-    setHeroStatus("文书生成完成，已自动保存到历史记录。", "success");
+    setHeroStatus(`${label}完成，可以继续人工修改或点“降低 AI 痕迹”。`, "success");
   } catch (error) {
-    setHeroStatus(error.message || "文书生成失败。", "danger");
+    setHeroStatus(error.message || "生成失败。", "danger");
   } finally {
     button.disabled = false;
-    button.textContent = label;
+    button.textContent = original;
   }
 }
 
 async function humanizeDocument() {
+  if (!state.currentDocument.length) {
+    setHeroStatus("当前还没有可优化的文稿。", "warning");
+    return;
+  }
+
+  const original = humanizeButton.textContent;
   humanizeButton.disabled = true;
-  const label = humanizeButton.textContent;
   humanizeButton.textContent = "优化中...";
 
   try {
-    const result = await apiFetch("/api/writer/humanize", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...collectWriterPayload("humanize"),
-        content: state.currentDocument,
-      }),
+    const content = await runCompletion([
+      {
+        role: "system",
+        content: [
+          "你是留学文书润色顾问。",
+          "请在不改变事实和结构主线的前提下，让文本更像真人写作。",
+          "减少模板味、均匀句式和过度工整表达。",
+        ].join("\n"),
+      },
+      {
+        role: "user",
+        content: `请润色下面这篇文书，保留原意但让表达更自然：\n\n${state.currentDocument.join("\n\n")}`,
+      },
+    ]);
+    renderOutput({
+      title: `${templateMeta[state.selectedTemplate].title} · 优化版`,
+      subtitle: "已完成一次自然化改写",
+      aiScore: "已优化",
+      content: textToParagraphs(content),
     });
-    renderOutput(result);
-    await refreshDocuments();
-    setHeroStatus("已完成自然化改写，结果也已保存。", "success");
+    setHeroStatus("已完成自然化改写。", "success");
   } catch (error) {
-    setHeroStatus(error.message || "AI 痕迹优化失败。", "danger");
+    setHeroStatus(error.message || "优化失败。", "danger");
   } finally {
     humanizeButton.disabled = false;
-    humanizeButton.textContent = label;
+    humanizeButton.textContent = original;
   }
 }
 
 function exportDocument() {
-  const text = [outputTitle.textContent, outputSubtitle.textContent, "", ...state.currentDocument].join("\n\n");
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${state.selectedTemplate}-${Date.now()}.txt`;
-  link.click();
-  URL.revokeObjectURL(url);
-  setHeroStatus("已导出当前文稿。", "success");
-}
-
-function initModeFromHash() {
-  const modeFromHash = window.location.hash.replace(/^#writer\//, "");
-  if (templateMeta[modeFromHash]) {
-    state.selectedTemplate = modeFromHash;
-    syncAll();
-  }
-}
-
-async function bootstrap() {
-  renderOutput({
-    ...templateMeta[state.selectedTemplate],
-    content: [
-      "这个版本已经支持账号登录、学生档案持久化、历史文稿保存，以及真实 OpenAI / PoloAPI 调用。",
-      "登录后你创建的学生和生成的文稿都会被保存在本地数据库里。",
-    ],
-    aiScore: "待生成",
-  });
-  syncAll();
-
-  try {
-    const health = await fetch("/api/health").then((res) => res.json());
-    setHeroStatus(
-      health.openaiConfigured
-        ? `AI 已连接，当前模型：${health.model}。`
-        : "当前运行在 Demo 模式。配置密钥后可用真实建档和生成。",
-      health.openaiConfigured ? "success" : "warning"
-    );
-  } catch {
-    setHeroStatus("后端尚未启动，请先运行 npm run dev。", "danger");
-  }
-
-  if (!state.token) {
-    showAuth();
+  if (!state.currentDocument.length) {
+    setHeroStatus("当前没有可导出的内容。", "warning");
     return;
   }
 
-  try {
-    await loadWorkspace();
-    hideAuth();
-  } catch (error) {
-    clearAuth();
-    authStatus.textContent = error.message || "登录状态已失效。";
+  const blob = new Blob([state.currentDocument.join("\n\n")], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `zionapply-${state.selectedTemplate}-${Date.now()}.txt`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function initializeFromHash() {
+  const modeFromHash = window.location.hash.replace(/^#writer\//, "");
+  if (modeFromHash && templateMeta[modeFromHash]) {
+    state.selectedTemplate = modeFromHash;
   }
+}
+
+function initializeTrialUi() {
+  trialBadge.textContent = "Static Trial";
+  docList.innerHTML = '<p class="empty-copy">静态试用版不保存历史文稿，建议生成后立即导出。</p>';
+  trimTemplates.forEach((element) => element.classList.add("hidden"));
 }
 
 openModalButtons.forEach((button) => button?.addEventListener("click", openModal));
@@ -666,71 +566,54 @@ modalBackdrop.addEventListener("click", (event) => {
     closeModal();
   }
 });
-
-authTabs.forEach((tab) => tab.addEventListener("click", () => setAuthMode(tab.dataset.authMode)));
-authSubmitButton.addEventListener("click", submitAuth);
-logoutButton.addEventListener("click", async () => {
-  try {
-    await apiFetch("/api/auth/logout", { method: "POST" });
-  } catch {}
-  clearAuth();
-});
-editStudentButton.addEventListener("click", openStudentEditor);
-deleteStudentButton.addEventListener("click", deleteCurrentStudent);
 closeEditStudentButton.addEventListener("click", closeStudentEditor);
 cancelEditStudentButton.addEventListener("click", closeStudentEditor);
-saveEditStudentButton.addEventListener("click", saveStudentEdits);
 studentEditBackdrop.addEventListener("click", (event) => {
   if (event.target === studentEditBackdrop) {
     closeStudentEditor();
   }
 });
-refreshDocsButton.addEventListener("click", async () => {
-  try {
-    await refreshDocuments();
-    setHeroStatus("已刷新历史文稿列表。", "success");
-  } catch (error) {
-    setHeroStatus(error.message || "刷新失败。", "danger");
-  }
-});
-
-smartToggle.addEventListener("click", () => {
-  const isOn = smartToggle.classList.toggle("on");
-  smartToggle.setAttribute("aria-pressed", String(isOn));
-});
-
-fileInput.addEventListener("change", (event) => handleFiles(event.target.files));
-dropzone.addEventListener("dragover", (event) => {
-  event.preventDefault();
-  dropzone.classList.add("dragover");
-});
-dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
-dropzone.addEventListener("drop", (event) => {
-  event.preventDefault();
-  dropzone.classList.remove("dragover");
-  handleFiles(event.dataTransfer.files);
-});
-
+saveApiConfigButton.addEventListener("click", saveApiConfig);
+clearApiConfigButton.addEventListener("click", clearApiConfig);
 createStudentButton.addEventListener("click", createStudent);
+saveEditStudentButton.addEventListener("click", saveStudentEdits);
+editStudentButton.addEventListener("click", openStudentEditor);
+deleteStudentButton.addEventListener("click", deleteCurrentStudent);
+generateDraftButton.addEventListener("click", () => generateDocument("draft"));
+generateOutlineButton.addEventListener("click", () => generateDocument("outline"));
+humanizeButton.addEventListener("click", humanizeDocument);
+exportButton.addEventListener("click", exportDocument);
 templateCards.forEach((card) => {
   card.addEventListener("click", () => {
+    if (!templateMeta[card.dataset.template]) {
+      return;
+    }
     state.selectedTemplate = card.dataset.template;
     syncAll();
   });
 });
 modeNavItems.forEach((item) => {
   item.addEventListener("click", () => {
+    if (!templateMeta[item.dataset.mode]) {
+      return;
+    }
     state.selectedTemplate = item.dataset.mode;
     syncAll();
   });
 });
+window.addEventListener("hashchange", () => {
+  initializeFromHash();
+  syncTemplateState();
+});
 
-generateDraftButton.addEventListener("click", () => generateDocument("draft"));
-generateOutlineButton.addEventListener("click", () => generateDocument("outline"));
-humanizeButton.addEventListener("click", humanizeDocument);
-exportButton.addEventListener("click", exportDocument);
-window.addEventListener("hashchange", initModeFromHash);
-
-setAuthMode("login");
-initModeFromHash();
-bootstrap();
+initializeFromHash();
+initializeTrialUi();
+renderApiConfig();
+renderOutput({
+  title: templateMeta.ps.title,
+  subtitle: "先配置 API，再开始试用 PS / RL 生成",
+  aiScore: "Static Trial",
+  content: state.currentDocument,
+});
+syncAll();
+setHeroStatus("静态试用版已就绪，适合先挂到 GitHub Pages 进行试用。", "info");
