@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZionApply by Zion</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">
+            <span class="brand-ed">Zion</span><span class="brand-pro">Apply</span>
+          </div>
+        </div>
+
+        <nav class="nav-group">
+          <p class="nav-label">通用</p>
+          <button class="nav-item">
+            <span class="nav-icon">⌂</span>
+            <span>总览</span>
+          </button>
+          <button class="nav-item active">
+            <span class="nav-icon">▣</span>
+            <span>学生档案</span>
+          </button>
+          <button class="nav-item">
+            <span class="nav-icon">☰</span>
+            <span>我的作品</span>
+          </button>
+        </nav>
+
+        <nav class="nav-group">
+          <p class="nav-label">文书写作</p>
+          <button class="nav-item">
+            <span class="nav-icon">✦</span>
+            <span>文书 Agent</span>
+          </button>
+          <button class="nav-item" data-mode="ps">
+            <span class="nav-icon">✎</span>
+            <span>写 PS</span>
+          </button>
+          <button class="nav-item" data-mode="pe">
+            <span class="nav-icon">☑</span>
+            <span>命题文书</span>
+          </button>
+          <button class="nav-item" data-mode="rl">
+            <span class="nav-icon">✉</span>
+            <span>写推荐信</span>
+          </button>
+          <button class="nav-item" data-mode="cv">
+            <span class="nav-icon">▤</span>
+            <span>写 CV</span>
+          </button>
+          <button class="nav-item" data-mode="fw">
+            <span class="nav-icon">◌</span>
+            <span>自由创作</span>
+          </button>
+        </nav>
+
+        <nav class="nav-group">
+          <p class="nav-label">工具</p>
+          <button class="nav-item">
+            <span class="nav-icon">⌁</span>
+            <span>降 AI 率</span>
+          </button>
+        </nav>
+
+        <button class="recharge-btn">账户充值</button>
+      </aside>
+
+      <main class="main-content">
+        <section class="topbar">
+          <div class="user-chip" id="user-chip">未登录</div>
+          <button class="ghost-btn compact-btn" id="logout-btn">退出登录</button>
+        </section>
+
+        <section class="hero">
+          <div>
+            <p class="eyebrow">ZionApply</p>
+            <h1>从学生建档到文书生成，一套流程完成</h1>
+            <p class="hero-copy">
+              上传学生资料、识别关键信息、沉淀完整档案，再按申请目标快速生成
+              PS、推荐信、CV 和补充文书。
+            </p>
+            <p class="hero-status" id="hero-status">当前为可发布版工作流，等待连接 OpenAI API。</p>
+          </div>
+
+          <div class="hero-actions">
+            <button class="primary-btn" id="open-modal-btn">新建学生档案</button>
+            <button class="ghost-btn" id="refresh-docs-btn">刷新生成记录</button>
+          </div>
+        </section>
+
+        <section class="overview-grid">
+          <article class="stat-card">
+            <span class="stat-kicker">档案数</span>
+            <strong>128</strong>
+            <p>支持手动录入、问卷上传、成绩单解析</p>
+          </article>
+          <article class="stat-card">
+            <span class="stat-kicker">本周生成</span>
+            <strong>392</strong>
+            <p>PS、RL、CV、Essay 多模板联动产出</p>
+          </article>
+          <article class="stat-card accent">
+            <span class="stat-kicker">推荐动作</span>
+            <strong>完善 6 份学生档案</strong>
+            <p>信息越完整，生成的文书越稳定、越像真人。</p>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <div class="panel student-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-title">学生档案</p>
+                <p class="panel-subtitle">智能建档、标签整理、申请定位一体化</p>
+              </div>
+              <div class="header-actions">
+                <button class="text-btn danger-text-btn" id="delete-student-btn">删除当前档案</button>
+                <button class="text-btn" id="edit-student-btn">编辑当前档案</button>
+                <button class="text-btn" id="inline-open-modal-btn">创建客户</button>
+              </div>
+            </div>
+
+            <div class="student-list" id="student-list">
+              <article class="student-card active" data-student="emily">
+                <div class="student-topline">
+                  <div>
+                    <h3>Emily Zhang</h3>
+                    <p>美本申请 · 传媒 / Digital Media</p>
+                  </div>
+                  <span class="status-badge ready">档案完整</span>
+                </div>
+                <div class="tag-row">
+                  <span>GPA 3.82</span>
+                  <span>IELTS 7.5</span>
+                  <span>3 段实习</span>
+                  <span>影像项目</span>
+                </div>
+                <p class="student-summary">
+                  AI 已提取教育背景、活动经历、奖项、目标院校偏好，可直接进入文书生成。
+                </p>
+              </article>
+
+              <article class="student-card" data-student="kevin">
+                <div class="student-topline">
+                  <div>
+                    <h3>Kevin Li</h3>
+                    <p>英港新申请 · 金融 / Business Analytics</p>
+                  </div>
+                  <span class="status-badge pending">待补充</span>
+                </div>
+                <div class="tag-row">
+                  <span>GPA 3.56</span>
+                  <span>GMAT 690</span>
+                  <span>商赛经历</span>
+                </div>
+                <p class="student-summary">
+                  缺少推荐人信息和核心故事线，建议先补充再开始生成 PS。
+                </p>
+              </article>
+
+              <article class="student-card" data-student="sophia">
+                <div class="student-topline">
+                  <div>
+                    <h3>Sophia Chen</h3>
+                    <p>研究生申请 · 教育学 / TESOL</p>
+                  </div>
+                  <span class="status-badge review">待确认</span>
+                </div>
+                <div class="tag-row">
+                  <span>GPA 3.91</span>
+                  <span>雅思 8.0</span>
+                  <span>支教经历</span>
+                </div>
+                <p class="student-summary">
+                  智能建档已识别出教学实践和研究兴趣，等待顾问确认目标项目。
+                </p>
+              </article>
+            </div>
+          </div>
+
+          <div class="panel workspace-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-title">文书生成工作台</p>
+                <p class="panel-subtitle">基于学生档案，一键调用多种写作模板</p>
+              </div>
+              <span class="ai-badge">GPT Powered</span>
+            </div>
+
+            <div class="template-grid">
+              <button class="template-card selected" data-template="ps">
+                <strong>个人陈述 PS</strong>
+                <span>突出成长轨迹、学术动机与项目匹配</span>
+              </button>
+              <button class="template-card" data-template="rl">
+                <strong>推荐信 RL</strong>
+                <span>按推荐人视角生成可信、具体的支持信</span>
+              </button>
+              <button class="template-card" data-template="cv">
+                <strong>简历 CV</strong>
+                <span>自动按申请方向重组经历亮点</span>
+              </button>
+              <button class="template-card" data-template="pe">
+                <strong>命题文书</strong>
+                <span>适配学校补充题、Why School、Career Goal</span>
+              </button>
+              <button class="template-card" data-template="fw">
+                <strong>自由创作</strong>
+                <span>不受固定模板约束，自定义写作指令和结构</span>
+              </button>
+            </div>
+
+            <div class="process-strip">
+              <article class="process-card active">
+                <span>01</span>
+                <strong>解析学生材料</strong>
+                <p>OCR / 文档抽取 / 标签归类</p>
+              </article>
+              <article class="process-card active">
+                <span>02</span>
+                <strong>构建写作证据</strong>
+                <p>学术、项目、奖项、故事线</p>
+              </article>
+              <article class="process-card active">
+                <span>03</span>
+                <strong>生成首稿</strong>
+                <p>按模板组织结构和语气</p>
+              </article>
+              <article class="process-card">
+                <span>04</span>
+                <strong>降 AI 痕迹</strong>
+                <p>重写句式并保留原意</p>
+              </article>
+            </div>
+
+            <div class="insight-grid">
+              <article class="insight-card">
+                <p class="insight-title">AI 提取亮点</p>
+                <ul id="insight-highlights">
+                  <li>纪录片拍摄与数字叙事转向</li>
+                  <li>跨媒体项目协调与表达能力</li>
+                  <li>作品有明确社会议题视角</li>
+                </ul>
+              </article>
+              <article class="insight-card">
+                <p class="insight-title">可用素材证据</p>
+                <ul id="insight-evidence">
+                  <li>校内短片获奖</li>
+                  <li>学生媒体 campaign 项目</li>
+                  <li>2 段内容/创意相关实习</li>
+                </ul>
+              </article>
+              <article class="insight-card">
+                <p class="insight-title">申请策略建议</p>
+                <ul id="insight-strategy">
+                  <li>避免只写“热爱传媒”</li>
+                  <li>强化交互叙事与创意科技结合</li>
+                  <li>推荐信需突出协作与执行力</li>
+                </ul>
+              </article>
+            </div>
+
+            <div class="generator-form">
+              <label>
+                <span>申请方向</span>
+                <input id="program-input" type="text" value="Digital Media / Interactive Storytelling" />
+              </label>
+              <label>
+                <span>写作语气</span>
+                <select id="tone-select">
+                  <option>真诚、有反思感</option>
+                  <option>学术、克制</option>
+                  <option>自信、故事感强</option>
+                </select>
+              </label>
+              <label>
+                <span>重点强调</span>
+                <textarea id="focus-input" rows="5">请突出她从纪录片拍摄到数字叙事方向的转变，强调跨学科能力、项目影响力，以及为什么适合申请偏创意科技的项目。</textarea>
+              </label>
+              <div class="rl-fields hidden" id="rl-fields">
+                <div class="dual-field">
+                  <label>
+                    <span>推荐人身份</span>
+                    <input id="recommender-role" type="text" value="影视叙事课程导师" />
+                  </label>
+                  <label>
+                    <span>认识时长</span>
+                    <input id="relationship-duration" type="text" value="2 年" />
+                  </label>
+                </div>
+                <label>
+                  <span>推荐信重点事例</span>
+                  <textarea id="recommendation-evidence" rows="4">请写出她在课程项目中如何独立完成纪录片策划、采访和后期剪辑，同时能带动组员协作推进项目。</textarea>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="primary-btn" id="generate-draft-btn">生成初稿</button>
+                <button class="ghost-btn" id="generate-outline-btn">生成大纲</button>
+              </div>
+            </div>
+
+            <div class="output-card">
+              <div class="output-header">
+                <div>
+                  <p class="panel-title" id="output-title">AI 生成预览</p>
+                  <p class="panel-subtitle" id="output-subtitle">结合学生档案内容输出首版 PS</p>
+                </div>
+                <div class="output-actions">
+                  <span class="ai-score" id="ai-score">AI率 18%</span>
+                  <button class="text-btn" id="humanize-btn">降低 AI 痕迹</button>
+                  <button class="text-btn" id="export-btn">导出文稿</button>
+                </div>
+              </div>
+              <div class="output-body" id="output-body">
+                <p>
+                  My journey into digital storytelling began behind the lens of a
+                  documentary camera, but what kept growing was not only my
+                  interest in images themselves. I became increasingly drawn to
+                  the ways stories can be structured, interacted with, and felt
+                  across media...
+                </p>
+                <p>
+                  At university, I learned to move between narrative research,
+                  visual design, and audience engagement. Whether I was
+                  producing short-form documentaries or coordinating a student
+                  media campaign, I found myself asking the same question: how
+                  can stories create participation rather than passive viewing?
+                </p>
+              </div>
+              <div class="quality-panel">
+                <div>
+                  <p class="quality-title">ZionApply 工作流映射</p>
+                  <p class="quality-copy">
+                    先从学生档案中抽取可验证素材，再按模板组织结构，最后做一次“去模板味 / 去 AI 痕迹”的重写。
+                  </p>
+                </div>
+                <div class="quality-tags">
+                  <span>文档解析</span>
+                  <span>证据检索</span>
+                  <span>模板生成</span>
+                  <span>人类化改写</span>
+                </div>
+              </div>
+
+              <div class="saved-docs panel-lite">
+                <div class="panel-header">
+                  <div>
+                    <p class="panel-title">文稿历史</p>
+                    <p class="panel-subtitle">自动保存每次生成与优化结果</p>
+                  </div>
+                </div>
+                <div class="doc-list" id="doc-list">
+                  <p class="empty-copy">登录后会显示你的历史文稿。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="auth-backdrop" id="auth-backdrop">
+      <section class="auth-panel">
+        <div class="auth-header">
+          <h2>登录你的 ZionApply 工作台</h2>
+          <p>学生档案、生成记录和 AI 建档结果会自动保存到你的账户。</p>
+        </div>
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-auth-mode="login">登录</button>
+          <button class="auth-tab" data-auth-mode="register">注册</button>
+        </div>
+        <div class="auth-form">
+          <label class="field auth-name-field hidden" id="auth-name-field">
+            <span>姓名</span>
+            <input type="text" id="auth-name-input" placeholder="输入你的姓名或团队昵称" />
+          </label>
+          <label class="field">
+            <span>邮箱</span>
+            <input type="email" id="auth-email-input" placeholder="you@example.com" />
+          </label>
+          <label class="field">
+            <span>密码</span>
+            <input type="password" id="auth-password-input" placeholder="至少 6 位密码" />
+          </label>
+          <button class="primary-btn" id="auth-submit-btn">登录并进入</button>
+          <p class="auth-status" id="auth-status">先登录，系统才会保存学生档案和文稿历史。</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop hidden" id="modal-backdrop">
+      <section class="modal">
+        <div class="modal-header">
+          <h2>创建客户</h2>
+          <button class="icon-btn" id="close-modal-btn" aria-label="关闭">×</button>
+        </div>
+
+        <label class="field">
+          <span>昵称</span>
+          <input type="text" placeholder="输入客户昵称，仅自己可见" id="student-name-input" />
+        </label>
+
+        <div class="toggle-row">
+          <button class="switch on" id="smart-toggle" aria-pressed="true">
+            <span class="switch-thumb"></span>
+          </button>
+          <div>
+            <strong>智能建档？</strong>
+            <p>上传信息收集表、简历、成绩单或图片，由 AI 自动识别并生成学生档案。</p>
+          </div>
+        </div>
+
+        <div class="upload-card">
+          <p class="upload-title">AI 智能建档</p>
+          <p class="upload-copy">
+            上传客户信息收集表，自动识别内容完成学生档案建立，免于重复操作。
+          </p>
+          <label class="dropzone" for="file-input">
+            <input id="file-input" type="file" multiple hidden />
+            <div class="dropzone-icon">⌲</div>
+            <strong>拖拽文档到这里</strong>
+            <span>或点击选择文件</span>
+            <small>支持格式：pdf, docx, doc, txt, png, jpg, jpeg, gif, webp</small>
+          </label>
+          <ul class="upload-list" id="upload-list"></ul>
+        </div>
+
+        <div class="modal-actions">
+          <button class="ghost-btn" id="cancel-modal-btn">取消</button>
+          <button class="primary-btn" id="create-student-btn">确认创建</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop hidden" id="student-edit-backdrop">
+      <section class="modal">
+        <div class="modal-header">
+          <h2>编辑学生档案</h2>
+          <button class="icon-btn" id="close-edit-student-btn" aria-label="关闭">×</button>
+        </div>
+        <div class="generator-form">
+          <label class="field">
+            <span>学生姓名</span>
+            <input type="text" id="edit-student-name" />
+          </label>
+          <label class="field">
+            <span>申请阶段</span>
+            <input type="text" id="edit-student-track" />
+          </label>
+          <label class="field">
+            <span>申请方向</span>
+            <input type="text" id="edit-student-program" />
+          </label>
+          <label class="field">
+            <span>档案摘要</span>
+            <textarea rows="4" id="edit-student-summary"></textarea>
+          </label>
+          <label class="field">
+            <span>重点强调</span>
+            <textarea rows="4" id="edit-student-focus"></textarea>
+          </label>
+          <label class="field">
+            <span>标签（用顿号或逗号分隔）</span>
+            <input type="text" id="edit-student-tags" />
+          </label>
+          <div class="modal-actions">
+            <button class="ghost-btn" id="cancel-edit-student-btn">取消</button>
+            <button class="primary-btn" id="save-edit-student-btn">保存档案</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
