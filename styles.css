@@ -198,6 +198,12 @@ textarea {
   border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
+.hero-compact {
+  margin-top: 22px;
+  padding: 24px 28px;
+  align-items: center;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   color: var(--brand-deep);
@@ -213,12 +219,23 @@ textarea {
   line-height: 1.05;
 }
 
+.hero-compact h1 {
+  max-width: 920px;
+  font-size: clamp(1.5rem, 3vw, 2.3rem);
+}
+
 .hero-copy {
   max-width: 700px;
   margin: 14px 0 0;
   color: var(--muted);
   font-size: 1.05rem;
   line-height: 1.7;
+}
+
+.hero-compact .hero-copy {
+  max-width: 920px;
+  font-size: 0.98rem;
+  line-height: 1.65;
 }
 
 .hero-status {
@@ -361,8 +378,8 @@ textarea {
 }
 
 .content-grid {
-  grid-template-columns: minmax(320px, 0.95fr) minmax(420px, 1.15fr);
-  margin-top: 24px;
+  grid-template-columns: minmax(320px, 0.88fr) minmax(520px, 1.22fr);
+  margin-top: 8px;
 }
 
 .panel {

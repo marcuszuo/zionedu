@@ -67,42 +67,6 @@
           </div>
         </section>
 
-        <section class="hero">
-          <div>
-            <p class="eyebrow">ZionApply</p>
-            <h1>先把 PS 和推荐信试起来，再决定完整版本怎么做</h1>
-            <p class="hero-copy">
-              这是一版适合最快上线的静态试用站。它保留了学生档案、PS 生成、推荐信生成和自然化改写，
-              不依赖后端服务，也不保存历史记录。
-            </p>
-            <p class="hero-status" id="hero-status">静态试用版正在待命。</p>
-            <p class="setup-status" id="setup-status">未保存 API 配置。</p>
-          </div>
-
-          <div class="hero-actions">
-            <button class="primary-btn" id="open-modal-btn">新建试用档案</button>
-            <button class="ghost-btn" data-open-student-modal>快速添加学生</button>
-          </div>
-        </section>
-
-        <section class="overview-grid">
-          <article class="stat-card">
-            <span class="stat-kicker">试用保留</span>
-            <strong>PS / RL</strong>
-            <p>保留最核心的两类文书生成入口，适合先验证市场和体验。</p>
-          </article>
-          <article class="stat-card">
-            <span class="stat-kicker">部署方式</span>
-            <strong>GitHub Pages</strong>
-            <p>和 `majornavi.cn` 一样走静态托管，最快可以直接绑定新域名。</p>
-          </article>
-          <article class="stat-card accent">
-            <span class="stat-kicker">安全方式</span>
-            <strong>Key 只存在浏览器本地</strong>
-            <p>不会把你的 API key 写进 GitHub 仓库，也不会公开暴露在页面源码里。</p>
-          </article>
-        </section>
-
         <section class="content-grid">
           <div class="panel student-panel">
             <div class="panel-header">
@@ -316,6 +280,23 @@
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section class="hero hero-compact">
+          <div>
+            <p class="eyebrow">ZionApply</p>
+            <h1>先选学生，再直接生成 PS 或推荐信</h1>
+            <p class="hero-copy">
+              右上角先保存 API 配置，然后用左侧档案和右侧工作台直接试生成。静态试用版不保存历史，生成后请及时导出。
+            </p>
+            <p class="hero-status" id="hero-status">静态试用版正在待命。</p>
+            <p class="setup-status" id="setup-status">未保存 API 配置。</p>
+          </div>
+
+          <div class="hero-actions">
+            <button class="primary-btn" id="open-modal-btn">新建试用档案</button>
+            <button class="ghost-btn" data-open-student-modal>快速添加学生</button>
           </div>
         </section>
       </main>
