@@ -50,6 +50,7 @@ const apiBaseInput = document.getElementById("api-base-input");
 const apiModelInput = document.getElementById("api-model-input");
 const saveApiConfigButton = document.getElementById("save-api-config-btn");
 const clearApiConfigButton = document.getElementById("clear-api-config-btn");
+const topbarStatus = document.getElementById("topbar-status");
 const editStudentButton = document.getElementById("edit-student-btn");
 const deleteStudentButton = document.getElementById("delete-student-btn");
 const studentEditBackdrop = document.getElementById("student-edit-backdrop");
@@ -187,6 +188,8 @@ function renderApiConfig() {
   setupStatus.textContent = config.apiKey
     ? "已保存浏览器本地 API 配置，可直接生成。"
     : "未保存 API Key。静态站上线后，需要你先在本浏览器里填一次才能生成。";
+  topbarStatus.textContent = config.apiKey ? "API 已保存" : "等待保存 API";
+  saveApiConfigButton.textContent = config.apiKey ? "已保存" : "保存 API";
 }
 
 function saveApiConfig() {
@@ -196,6 +199,7 @@ function saveApiConfig() {
 
   if (!apiKey) {
     setupStatus.textContent = "请先输入 API Key。";
+    topbarStatus.textContent = "请先输入 API Key";
     return;
   }
 
@@ -205,9 +209,12 @@ function saveApiConfig() {
     setStoredValue(API_MODEL_STORAGE, model);
     renderApiConfig();
     setHeroStatus("API 配置已保存，本次试用可以直接生成。", "success");
+    topbarStatus.textContent = "API 已保存";
+    saveApiConfigButton.textContent = "已保存";
   } catch (error) {
     setupStatus.textContent = error.message || "保存失败，请检查浏览器隐私设置。";
     setHeroStatus("保存 API 配置失败。", "danger");
+    topbarStatus.textContent = "保存失败";
   }
 }
 
@@ -217,6 +224,8 @@ function clearApiConfig() {
   removeStoredValue(API_MODEL_STORAGE);
   renderApiConfig();
   setHeroStatus("已清除浏览器本地 API 配置。", "warning");
+  topbarStatus.textContent = "已清除";
+  saveApiConfigButton.textContent = "保存 API";
 }
 
 function renderInsightList(element, items) {
