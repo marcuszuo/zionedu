@@ -156,6 +156,9 @@ function splitList(value) {
 }
 
 function setHeroStatus(message, variant = "info") {
+  if (!heroStatus) {
+    return;
+  }
   heroStatus.textContent = message;
   const palette = {
     info: ["rgba(16, 183, 222, 0.1)", "#0985b7"],
@@ -185,9 +188,11 @@ function renderApiConfig() {
   apiKeyInput.value = config.apiKey;
   apiBaseInput.value = config.baseUrl;
   apiModelInput.value = config.model;
-  setupStatus.textContent = config.apiKey
-    ? "已保存浏览器本地 API 配置，可直接生成。"
-    : "未保存 API Key。静态站上线后，需要你先在本浏览器里填一次才能生成。";
+  if (setupStatus) {
+    setupStatus.textContent = config.apiKey
+      ? "已保存浏览器本地 API 配置，可直接生成。"
+      : "未保存 API Key。静态站上线后，需要你先在本浏览器里填一次才能生成。";
+  }
   topbarStatus.textContent = config.apiKey ? "API 已保存" : "等待保存 API";
   saveApiConfigButton.textContent = config.apiKey ? "已保存" : "保存 API";
 }
@@ -198,7 +203,9 @@ function saveApiConfig() {
   const model = apiModelInput.value.trim() || "gpt-5";
 
   if (!apiKey) {
-    setupStatus.textContent = "请先输入 API Key。";
+    if (setupStatus) {
+      setupStatus.textContent = "请先输入 API Key。";
+    }
     topbarStatus.textContent = "请先输入 API Key";
     return;
   }
@@ -212,7 +219,9 @@ function saveApiConfig() {
     topbarStatus.textContent = "API 已保存";
     saveApiConfigButton.textContent = "已保存";
   } catch (error) {
-    setupStatus.textContent = error.message || "保存失败，请检查浏览器隐私设置。";
+    if (setupStatus) {
+      setupStatus.textContent = error.message || "保存失败，请检查浏览器隐私设置。";
+    }
     setHeroStatus("保存 API 配置失败。", "danger");
     topbarStatus.textContent = "保存失败";
   }
