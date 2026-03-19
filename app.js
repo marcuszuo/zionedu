@@ -1,6 +1,7 @@
 const API_KEY_STORAGE = "zionapply_api_key";
 const API_BASE_STORAGE = "zionapply_api_base";
 const API_MODEL_STORAGE = "zionapply_api_model";
+const memoryStorage = {};
 
 const modalBackdrop = document.getElementById("modal-backdrop");
 const openModalButtons = [
@@ -92,7 +93,7 @@ const seedStudents = {
 };
 
 const state = {
-  students: structuredClone(seedStudents),
+  students: cloneData(seedStudents),
   studentOrder: Object.keys(seedStudents),
   selectedStudent: "emily",
   selectedTemplate: "ps",
@@ -100,6 +101,34 @@ const state = {
     "这里会显示 AI 生成的内容。先在右上角填入你的 PoloAPI 信息，再点击“生成初稿”即可开始试用。",
   ],
 };
+
+function cloneData(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function getStoredValue(key, fallback = "") {
+  try {
+    return localStorage.getItem(key) || fallback;
+  } catch (_error) {
+    return memoryStorage[key] || fallback;
+  }
+}
+
+function setStoredValue(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (_error) {
+    memoryStorage[key] = value;
+  }
+}
+
+function removeStoredValue(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch (_error) {
+    delete memoryStorage[key];
+  }
+}
 
 function escapeHtml(value) {
   return String(value)
@@ -144,9 +173,9 @@ function getSelectedProfile() {
 
 function getApiConfig() {
   return {
-    apiKey: localStorage.getItem(API_KEY_STORAGE) || "",
-    baseUrl: localStorage.getItem(API_BASE_STORAGE) || "https://api.newapi.life/v1",
-    model: localStorage.getItem(API_MODEL_STORAGE) || "gpt-5",
+    apiKey: getStoredValue(API_KEY_STORAGE, ""),
+    baseUrl: getStoredValue(API_BASE_STORAGE, "https://api.newapi.life/v1"),
+    model: getStoredValue(API_MODEL_STORAGE, "gpt-5"),
   };
 }
 
@@ -170,17 +199,22 @@ function saveApiConfig() {
     return;
   }
 
-  localStorage.setItem(API_KEY_STORAGE, apiKey);
-  localStorage.setItem(API_BASE_STORAGE, baseUrl || "https://api.newapi.life/v1");
-  localStorage.setItem(API_MODEL_STORAGE, model);
-  renderApiConfig();
-  setHeroStatus("API 配置已保存到当前浏览器，本次试用可以直接生成。", "success");
+  try {
+    setStoredValue(API_KEY_STORAGE, apiKey);
+    setStoredValue(API_BASE_STORAGE, baseUrl || "https://api.newapi.life/v1");
+    setStoredValue(API_MODEL_STORAGE, model);
+    renderApiConfig();
+    setHeroStatus("API 配置已保存，本次试用可以直接生成。", "success");
+  } catch (error) {
+    setupStatus.textContent = error.message || "保存失败，请检查浏览器隐私设置。";
+    setHeroStatus("保存 API 配置失败。", "danger");
+  }
 }
 
 function clearApiConfig() {
-  localStorage.removeItem(API_KEY_STORAGE);
-  localStorage.removeItem(API_BASE_STORAGE);
-  localStorage.removeItem(API_MODEL_STORAGE);
+  removeStoredValue(API_KEY_STORAGE);
+  removeStoredValue(API_BASE_STORAGE);
+  removeStoredValue(API_MODEL_STORAGE);
   renderApiConfig();
   setHeroStatus("已清除浏览器本地 API 配置。", "warning");
 }
