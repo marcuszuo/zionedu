@@ -166,15 +166,6 @@ textarea {
   flex-wrap: wrap;
 }
 
-.topbar-status {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(18, 31, 53, 0.06);
-  color: #5c6780;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
 .compact-input {
   min-width: 160px;
   padding: 10px 14px;
