@@ -181,6 +181,15 @@ function getApiConfig() {
   };
 }
 
+function getApiConfigFromInputs() {
+  const stored = getApiConfig();
+  return {
+    apiKey: apiKeyInput.value.trim() || stored.apiKey,
+    baseUrl: (apiBaseInput.value.trim() || stored.baseUrl || "https://api.newapi.life/v1").replace(/\/+$/, ""),
+    model: apiModelInput.value.trim() || stored.model || "gpt-5",
+  };
+}
+
 function renderApiConfig() {
   const config = getApiConfig();
   apiKeyInput.value = config.apiKey;
@@ -472,9 +481,9 @@ function buildUserPrompt(payload) {
 }
 
 async function runCompletion(messages) {
-  const config = getApiConfig();
+  const config = getApiConfigFromInputs();
   if (!config.apiKey) {
-    throw new Error("请先在右上角保存 API Key。");
+    throw new Error("请先在右上角输入 API Key。");
   }
 
   const response = await fetch(`${config.baseUrl}/chat/completions`, {
