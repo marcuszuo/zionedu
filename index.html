@@ -57,11 +57,7 @@
       <main class="main-content">
         <section class="topbar">
           <div class="topbar-actions">
-            <input class="compact-input" id="api-base-input" type="text" placeholder="API Base" />
-            <input class="compact-input" id="api-model-input" type="text" placeholder="Model" />
-            <input class="compact-input wide" id="api-key-input" type="password" placeholder="输入 API Key，保存后下次自动带出" />
-            <button class="ghost-btn compact-btn" id="clear-api-config-btn">清除</button>
-            <button class="primary-btn compact-btn" id="save-api-config-btn">保存 API</button>
+            <button class="ghost-btn compact-btn" id="open-api-settings-btn">AI 设置</button>
           </div>
         </section>
 
@@ -333,6 +329,35 @@
         <div class="modal-actions">
           <button class="ghost-btn" id="cancel-modal-btn">取消</button>
           <button class="primary-btn" id="create-student-btn">确认创建</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop hidden" id="api-settings-backdrop">
+      <section class="modal modal-narrow">
+        <div class="modal-header">
+          <h2>AI 设置</h2>
+          <button class="icon-btn" id="close-api-settings-btn" aria-label="关闭">×</button>
+        </div>
+
+        <div class="generator-form">
+          <label class="field">
+            <span>API Base</span>
+            <input class="compact-input modal-input" id="api-base-input" type="text" placeholder="https://api.newapi.life/v1" />
+          </label>
+          <label class="field">
+            <span>Model</span>
+            <input class="compact-input modal-input" id="api-model-input" type="text" placeholder="gpt-5" />
+          </label>
+          <label class="field">
+            <span>API Key</span>
+            <input class="compact-input modal-input" id="api-key-input" type="password" placeholder="输入 API Key，保存后下次自动带出" />
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button class="ghost-btn" id="clear-api-config-btn">清除</button>
+          <button class="primary-btn" id="save-api-config-btn">保存 API</button>
         </div>
       </section>
     </div>

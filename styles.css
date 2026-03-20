@@ -180,6 +180,11 @@ textarea {
   min-width: 280px;
 }
 
+.modal-input {
+  width: 100%;
+  min-width: 0;
+}
+
 .compact-btn {
   padding: 10px 16px;
 }
@@ -769,6 +774,10 @@ textarea {
   padding: 30px;
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.94);
+}
+
+.modal-narrow {
+  width: min(560px, 100%);
 }
 
 .modal-header h2 {

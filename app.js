@@ -50,6 +50,9 @@ const apiBaseInput = document.getElementById("api-base-input");
 const apiModelInput = document.getElementById("api-model-input");
 const saveApiConfigButton = document.getElementById("save-api-config-btn");
 const clearApiConfigButton = document.getElementById("clear-api-config-btn");
+const openApiSettingsButton = document.getElementById("open-api-settings-btn");
+const apiSettingsBackdrop = document.getElementById("api-settings-backdrop");
+const closeApiSettingsButton = document.getElementById("close-api-settings-btn");
 const editStudentButton = document.getElementById("edit-student-btn");
 const deleteStudentButton = document.getElementById("delete-student-btn");
 const studentEditBackdrop = document.getElementById("student-edit-backdrop");
@@ -222,6 +225,7 @@ function saveApiConfig() {
     renderApiConfig();
     setHeroStatus("API 配置已保存，本次试用可以直接生成。", "success");
     saveApiConfigButton.textContent = "已保存";
+    closeApiSettings();
   } catch (error) {
     if (setupStatus) {
       setupStatus.textContent = error.message || "保存失败，请检查浏览器隐私设置。";
@@ -322,6 +326,14 @@ function openModal() {
 
 function closeModal() {
   modalBackdrop.classList.add("hidden");
+}
+
+function openApiSettings() {
+  apiSettingsBackdrop.classList.remove("hidden");
+}
+
+function closeApiSettings() {
+  apiSettingsBackdrop.classList.add("hidden");
 }
 
 function openStudentEditor() {
@@ -617,6 +629,13 @@ closeModalButtons.forEach((button) => button?.addEventListener("click", closeMod
 modalBackdrop.addEventListener("click", (event) => {
   if (event.target === modalBackdrop) {
     closeModal();
+  }
+});
+openApiSettingsButton.addEventListener("click", openApiSettings);
+closeApiSettingsButton.addEventListener("click", closeApiSettings);
+apiSettingsBackdrop.addEventListener("click", (event) => {
+  if (event.target === apiSettingsBackdrop) {
+    closeApiSettings();
   }
 });
 closeEditStudentButton.addEventListener("click", closeStudentEditor);
