@@ -1,3 +1,6 @@
+import mammoth from "mammoth";
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
+
 const API_KEY_STORAGE = "zionapply_api_key";
 const API_BASE_STORAGE = "zionapply_api_base";
 const API_MODEL_STORAGE = "zionapply_api_model";
@@ -708,6 +711,40 @@ async function extractAgentMaterials(files) {
       const text = await file.text();
       if (text.trim()) {
         textBlocks.push(`文件：${file.name}\n${text.slice(0, 12000)}`);
+      }
+      continue;
+    }
+
+    if (lower.endsWith(".docx")) {
+      const buffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+      if (result.value.trim()) {
+        textBlocks.push(`文件：${file.name}\n${result.value.slice(0, 12000)}`);
+      }
+      continue;
+    }
+
+    if (lower.endsWith(".pdf") || file.type === "application/pdf") {
+      const buffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: buffer }).promise;
+      const pageTexts = [];
+
+      for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+        const page = await pdf.getPage(pageNumber);
+        const content = await page.getTextContent();
+        const pageText = content.items
+          .map((item) => ("str" in item ? item.str : ""))
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (pageText) {
+          pageTexts.push(pageText);
+        }
+      }
+
+      const merged = pageTexts.join("\n");
+      if (merged.trim()) {
+        textBlocks.push(`文件：${file.name}\n${merged.slice(0, 12000)}`);
       }
       continue;
     }
