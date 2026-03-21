@@ -279,10 +279,9 @@ function renderStudentList() {
               <h3>${escapeHtml(student.displayName)}</h3>
               <p>${escapeHtml(student.applicationTrack)} · ${escapeHtml(student.targetProgram)}</p>
             </div>
-            <span class="status-badge ${escapeHtml(student.statusTone || "review")}">${escapeHtml(student.statusLabel || "待确认")}</span>
+            <span class="status-badge ${escapeHtml(student.statusTone || "review")}">${escapeHtml(student.statusTone === "ready" ? "就绪" : student.statusLabel || "待确认")}</span>
           </div>
-          <div class="tag-row">${(student.tags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
-          <p class="student-summary">${escapeHtml(student.summary || "")}</p>
+          <p class="student-summary">${escapeHtml((student.tags || []).slice(0, 3).join(" · ") || student.summary || "")}</p>
         </article>
       `;
     })

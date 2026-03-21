@@ -60,7 +60,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 10px;
+  padding: 8px 8px 14px;
 }
 
 .brand-mark {
@@ -72,7 +72,7 @@ textarea {
 }
 
 .brand-text {
-  font-size: 2rem;
+  font-size: 1.72rem;
   font-weight: 800;
   line-height: 1;
 }
@@ -88,13 +88,13 @@ textarea {
 .nav-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .nav-label {
-  margin: 0 10px 6px;
+  margin: 0 10px 8px;
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .nav-item {
@@ -103,11 +103,11 @@ textarea {
   color: #697388;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 13px 14px;
-  border-radius: 18px;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.98rem;
   cursor: pointer;
   transition: 180ms ease;
 }
@@ -120,9 +120,9 @@ textarea {
 }
 
 .nav-icon {
-  width: 26px;
+  width: 24px;
   text-align: center;
-  font-size: 1.25rem;
+  font-size: 1.12rem;
 }
 
 .recharge-btn {
@@ -181,7 +181,7 @@ textarea {
 }
 
 .compact-btn {
-  padding: 10px 16px;
+  padding: 9px 14px;
 }
 
 .hero {
@@ -268,6 +268,24 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.panel-header {
+  align-items: flex-start;
+}
+
+.header-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.header-actions .primary-btn,
+.header-actions .ghost-btn {
+  box-shadow: none;
+}
+
+.header-actions .primary-btn {
+  padding-inline: 16px;
 }
 
 .primary-btn,
@@ -386,8 +404,8 @@ textarea {
 
 .agent-shell {
   display: grid;
-  gap: 28px;
-  padding: 12px 0 24px;
+  gap: 22px;
+  padding: 8px 0 24px;
 }
 
 .agent-hero,
@@ -409,7 +427,7 @@ textarea {
 .agent-picker p {
   margin: 14px 0 0;
   color: var(--muted);
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .agent-badge {
@@ -449,7 +467,7 @@ textarea {
 }
 
 .agent-grid {
-  grid-template-columns: minmax(420px, 1fr) minmax(360px, 0.92fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
   align-items: start;
 }
 
@@ -460,16 +478,16 @@ textarea {
 }
 
 .agent-panel {
-  padding: 24px;
-  border-radius: 28px;
+  padding: 20px;
+  border-radius: 24px;
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: var(--shadow);
 }
 
 .agent-dropzone {
-  min-height: 330px;
-  border-radius: 30px;
+  min-height: 280px;
+  border-radius: 24px;
   border: 2px dashed rgba(18, 31, 53, 0.12);
   background: rgba(255, 255, 255, 0.78);
   display: grid;
@@ -555,28 +573,37 @@ textarea {
   border-radius: 26px;
 }
 
+.student-panel .panel-header {
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(18, 31, 53, 0.06);
+}
+
+.workspace-panel .panel-header {
+  margin-bottom: 4px;
+}
+
 .panel-title {
   margin: 0;
   font-weight: 800;
-  font-size: 1.2rem;
+  font-size: 1.12rem;
 }
 
 .panel-subtitle {
   margin: 4px 0 0;
-  line-height: 1.6;
-  font-size: 0.94rem;
+  line-height: 1.55;
+  font-size: 0.92rem;
 }
 
 .student-list {
   display: grid;
-  gap: 14px;
-  margin-top: 18px;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .student-card {
-  padding: 16px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.72);
+  padding: 14px 15px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
   border: 1px solid var(--line);
   cursor: pointer;
   transition: 180ms ease;
@@ -593,33 +620,32 @@ textarea {
 }
 
 .student-card h3 {
-  margin: 0 0 6px;
-  font-size: 1.15rem;
+  margin: 0 0 4px;
+  font-size: 1rem;
 }
 
 .student-card p {
   margin: 0;
 }
 
-.tag-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px 0;
+.student-topline p {
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.45;
 }
 
-.tag-row span,
+.student-summary {
+  margin-top: 10px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
 .status-badge,
 .ai-badge {
   border-radius: 999px;
   padding: 7px 12px;
   font-size: 0.85rem;
   font-weight: 700;
-}
-
-.tag-row span {
-  background: rgba(18, 31, 53, 0.06);
-  color: #42516d;
 }
 
 .status-badge.ready {
@@ -637,6 +663,13 @@ textarea {
   color: var(--review);
 }
 
+.status-badge.ready,
+.status-badge.pending,
+.status-badge.review {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+}
+
 .ai-badge {
   background: linear-gradient(135deg, rgba(16, 183, 222, 0.16), rgba(125, 104, 248, 0.14));
   color: #155e8d;
@@ -644,13 +677,14 @@ textarea {
 
 .template-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 16px;
+  margin-top: 12px;
+  gap: 12px;
 }
 
 .template-card {
   text-align: left;
-  padding: 16px;
-  border-radius: 18px;
+  padding: 14px;
+  border-radius: 16px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
@@ -659,14 +693,15 @@ textarea {
 .template-card strong,
 .upload-title {
   display: block;
-  font-size: 1.02rem;
+  font-size: 0.98rem;
 }
 
 .template-card span {
   display: block;
-  margin-top: 8px;
+  margin-top: 6px;
   color: var(--muted);
-  line-height: 1.55;
+  line-height: 1.45;
+  font-size: 0.9rem;
 }
 
 .template-card.selected,
@@ -677,8 +712,8 @@ textarea {
 
 .generator-form {
   display: grid;
-  gap: 14px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .dual-field {
@@ -702,31 +737,36 @@ textarea {
   border: 1px solid rgba(18, 31, 53, 0.08);
   background: rgba(248, 251, 255, 0.92);
   color: var(--text);
-  border-radius: 18px;
-  padding: 15px 18px;
+  border-radius: 14px;
+  padding: 13px 15px;
   outline: none;
 }
 
 .generator-form textarea,
 .field textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 104px;
 }
 
 .output-card,
 .upload-card,
 .panel-lite {
-  margin-top: 18px;
-  padding: 18px;
-  border-radius: 20px;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.76);
   border: 1px solid var(--line);
 }
 
 .output-body {
-  margin-top: 12px;
+  margin-top: 10px;
   padding: 6px 2px 0;
   line-height: 1.8;
+}
+
+.output-body p {
+  margin: 0 0 14px;
+  font-size: 0.96rem;
 }
 
 .output-actions,
@@ -748,6 +788,11 @@ textarea {
 .ai-score {
   background: rgba(31, 157, 107, 0.12);
   color: var(--success);
+}
+
+.student-panel {
+  position: sticky;
+  top: 28px;
 }
 
 .empty-copy,
@@ -984,6 +1029,10 @@ textarea {
 
   .student-panel {
     position: static;
+  }
+
+  .agent-grid {
+    grid-template-columns: 1fr;
   }
 }
 
