@@ -70,11 +70,7 @@
             <div class="panel-header">
               <div>
                 <p class="panel-title">学生档案</p>
-                <p class="panel-subtitle">先选择一个学生。</p>
-              </div>
-              <div class="header-actions">
-                <button class="ghost-btn compact-btn" id="edit-student-btn">编辑</button>
-                <button class="primary-btn compact-btn" data-open-student-modal>新建档案</button>
+                <p class="panel-subtitle">先选学生，再开始写作。</p>
               </div>
             </div>
 
@@ -91,13 +87,18 @@
               </article>
 
             </div>
+
+            <div class="student-tools">
+              <button class="ghost-btn compact-btn" id="edit-student-btn">编辑当前档案</button>
+              <button class="primary-btn compact-btn" data-open-student-modal>新建档案</button>
+            </div>
           </div>
 
           <div class="panel workspace-panel">
             <div class="panel-header">
               <div>
-                <p class="panel-title">文书生成工作台</p>
-                <p class="panel-subtitle">选择文书类型，填写重点，直接生成。</p>
+                <p class="panel-title">写作</p>
+                <p class="panel-subtitle">选择类型，补充重点，直接生成首稿。</p>
               </div>
             </div>
 
@@ -154,10 +155,10 @@
             <div class="output-card">
               <div class="output-header">
                 <div>
-                <p class="panel-title" id="output-title">AI 生成预览</p>
-                <p class="panel-subtitle" id="output-subtitle">结合学生档案内容输出首版 PS</p>
-              </div>
-              <div class="output-actions">
+                  <p class="panel-title" id="output-title">预览</p>
+                  <p class="panel-subtitle" id="output-subtitle">结合学生档案内容输出首版 PS</p>
+                </div>
+                <div class="output-actions">
                   <span class="ai-score" id="ai-score">实时生成</span>
                   <button class="text-btn" id="humanize-btn">降低 AI 痕迹</button>
                   <button class="text-btn" id="export-btn">导出文稿</button>
