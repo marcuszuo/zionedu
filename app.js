@@ -22,9 +22,14 @@ const studentTagsInput = document.getElementById("student-tags-input");
 const studentHighlightsInput = document.getElementById("student-highlights-input");
 const studentEvidenceInput = document.getElementById("student-evidence-input");
 const studentStrategyInput = document.getElementById("student-strategy-input");
+
 const studentList = document.getElementById("student-list");
 const templateCards = document.querySelectorAll(".template-card");
+const viewNavItems = document.querySelectorAll(".nav-item[data-view]");
 const modeNavItems = document.querySelectorAll(".nav-item[data-mode]");
+const writerView = document.getElementById("writer-view");
+const agentView = document.getElementById("agent-view");
+
 const outputBody = document.getElementById("output-body");
 const outputTitle = document.getElementById("output-title");
 const outputSubtitle = document.getElementById("output-subtitle");
@@ -40,19 +45,31 @@ const recommendationEvidence = document.getElementById("recommendation-evidence"
 const humanizeButton = document.getElementById("humanize-btn");
 const aiScore = document.getElementById("ai-score");
 const exportButton = document.getElementById("export-btn");
-const heroStatus = document.getElementById("hero-status");
 const insightHighlights = document.getElementById("insight-highlights");
 const insightEvidence = document.getElementById("insight-evidence");
 const insightStrategy = document.getElementById("insight-strategy");
-const setupStatus = document.getElementById("setup-status");
+
 const apiKeyInput = document.getElementById("api-key-input");
 const apiBaseInput = document.getElementById("api-base-input");
 const apiModelInput = document.getElementById("api-model-input");
 const saveApiConfigButton = document.getElementById("save-api-config-btn");
 const clearApiConfigButton = document.getElementById("clear-api-config-btn");
-const openApiSettingsButton = document.getElementById("open-api-settings-btn");
-const apiSettingsBackdrop = document.getElementById("api-settings-backdrop");
-const closeApiSettingsButton = document.getElementById("close-api-settings-btn");
+
+const agentUploadTab = document.getElementById("agent-upload-tab");
+const agentLibraryTab = document.getElementById("agent-library-tab");
+const agentUploadPanel = document.getElementById("agent-upload-panel");
+const agentLibraryPanel = document.getElementById("agent-library-panel");
+const agentFileInput = document.getElementById("agent-file-input");
+const agentDropzone = document.getElementById("agent-dropzone");
+const agentFileList = document.getElementById("agent-file-list");
+const agentLibraryList = document.getElementById("agent-library-list");
+const agentProgramInput = document.getElementById("agent-program-input");
+const agentInstructionInput = document.getElementById("agent-instruction-input");
+const agentGenerateButton = document.getElementById("agent-generate-btn");
+const agentOutputBody = document.getElementById("agent-output-body");
+const agentOutputSubtitle = document.getElementById("agent-output-subtitle");
+const agentUseResultButton = document.getElementById("agent-use-result-btn");
+
 const editStudentButton = document.getElementById("edit-student-btn");
 const deleteStudentButton = document.getElementById("delete-student-btn");
 const studentEditBackdrop = document.getElementById("student-edit-backdrop");
@@ -97,10 +114,14 @@ const seedStudents = {
 const state = {
   students: cloneData(seedStudents),
   studentOrder: Object.keys(seedStudents),
+  currentView: "writer",
   selectedStudent: "emily",
   selectedTemplate: "ps",
+  agentMode: "upload",
+  agentFiles: [],
+  agentResult: [],
   currentDocument: [
-    "这里会显示 AI 生成的内容。先在右上角填入你的 PoloAPI 信息，再点击“生成初稿”即可开始试用。",
+    "这里会显示 AI 生成的内容。先在顶部配置 API，然后点击“生成初稿”即可开始试用。",
   ],
 };
 
@@ -156,20 +177,20 @@ function splitList(value) {
     .filter(Boolean);
 }
 
-function setHeroStatus(message, variant = "info") {
-  if (!heroStatus) {
-    return;
-  }
-  heroStatus.textContent = message;
+function setStatusMessage(message, variant = "info") {
   const palette = {
-    info: ["rgba(16, 183, 222, 0.1)", "#0985b7"],
-    success: ["rgba(31, 157, 107, 0.12)", "#1f9d6b"],
-    warning: ["rgba(216, 154, 29, 0.14)", "#b4780d"],
-    danger: ["rgba(214, 69, 69, 0.12)", "#b33939"],
+    info: "rgba(16, 183, 222, 0.08)",
+    success: "rgba(31, 157, 107, 0.08)",
+    warning: "rgba(216, 154, 29, 0.08)",
+    danger: "rgba(214, 69, 69, 0.08)",
   };
-  const [bg, fg] = palette[variant] || palette.info;
-  heroStatus.style.background = bg;
-  heroStatus.style.color = fg;
+  outputSubtitle.textContent = message;
+  outputSubtitle.style.color =
+    variant === "danger" ? "#b33939" : variant === "success" ? "#1f9d6b" : variant === "warning" ? "#b4780d" : "#6e7a90";
+  outputSubtitle.style.background = palette[variant];
+  outputSubtitle.style.display = "inline-block";
+  outputSubtitle.style.padding = "8px 12px";
+  outputSubtitle.style.borderRadius = "999px";
 }
 
 function getSelectedProfile() {
@@ -195,14 +216,9 @@ function getApiConfigFromInputs() {
 
 function renderApiConfig() {
   const config = getApiConfig();
-  apiKeyInput.value = config.apiKey;
   apiBaseInput.value = config.baseUrl;
   apiModelInput.value = config.model;
-  if (setupStatus) {
-    setupStatus.textContent = config.apiKey
-      ? "已保存浏览器本地 API 配置，可直接生成。"
-      : "未保存 API Key。静态站上线后，需要你先在本浏览器里填一次才能生成。";
-  }
+  apiKeyInput.value = config.apiKey;
   saveApiConfigButton.textContent = config.apiKey ? "已保存" : "保存 API";
 }
 
@@ -212,26 +228,15 @@ function saveApiConfig() {
   const model = apiModelInput.value.trim() || "gpt-5";
 
   if (!apiKey) {
-    if (setupStatus) {
-      setupStatus.textContent = "请先输入 API Key。";
-    }
+    setStatusMessage("请先输入 API Key。", "warning");
     return;
   }
 
-  try {
-    setStoredValue(API_KEY_STORAGE, apiKey);
-    setStoredValue(API_BASE_STORAGE, baseUrl || "https://api.newapi.life/v1");
-    setStoredValue(API_MODEL_STORAGE, model);
-    renderApiConfig();
-    setHeroStatus("API 配置已保存，本次试用可以直接生成。", "success");
-    saveApiConfigButton.textContent = "已保存";
-    closeApiSettings();
-  } catch (error) {
-    if (setupStatus) {
-      setupStatus.textContent = error.message || "保存失败，请检查浏览器隐私设置。";
-    }
-    setHeroStatus("保存 API 配置失败。", "danger");
-  }
+  setStoredValue(API_KEY_STORAGE, apiKey);
+  setStoredValue(API_BASE_STORAGE, baseUrl || "https://api.newapi.life/v1");
+  setStoredValue(API_MODEL_STORAGE, model);
+  renderApiConfig();
+  setStatusMessage("API 配置已保存。", "success");
 }
 
 function clearApiConfig() {
@@ -239,8 +244,8 @@ function clearApiConfig() {
   removeStoredValue(API_BASE_STORAGE);
   removeStoredValue(API_MODEL_STORAGE);
   renderApiConfig();
-  setHeroStatus("已清除浏览器本地 API 配置。", "warning");
   saveApiConfigButton.textContent = "保存 API";
+  setStatusMessage("已清除 API 配置。", "warning");
 }
 
 function renderInsightList(element, items) {
@@ -277,15 +282,58 @@ function renderStudentList() {
     card.addEventListener("click", () => {
       state.selectedStudent = card.dataset.student;
       syncAll();
-      setHeroStatus(`已切换到 ${getSelectedProfile().displayName} 的试用档案。`, "info");
+      setStatusMessage(`已切换到 ${getSelectedProfile().displayName} 的档案。`, "info");
     });
   });
+}
+
+function renderAgentLibrary() {
+  agentLibraryList.innerHTML = state.studentOrder
+    .map((key) => {
+      const student = state.students[key];
+      return `
+        <article class="agent-library-card ${key === state.selectedStudent ? "active" : ""}" data-agent-student="${escapeHtml(key)}">
+          <strong>${escapeHtml(student.displayName)}</strong>
+          <p>${escapeHtml(student.applicationTrack)} · ${escapeHtml(student.targetProgram)}</p>
+          <button class="ghost-btn compact-btn">选择此档案</button>
+        </article>
+      `;
+    })
+    .join("");
+
+  agentLibraryList.querySelectorAll("[data-agent-student]").forEach((card) => {
+    card.addEventListener("click", () => {
+      state.selectedStudent = card.dataset.agentStudent;
+      renderAgentLibrary();
+      renderStudentList();
+      setStatusMessage(`文书Agent 已选择 ${getSelectedProfile().displayName} 的资料库档案。`, "info");
+    });
+  });
+}
+
+function renderAgentFiles() {
+  if (!state.agentFiles.length) {
+    agentFileList.innerHTML = '<p class="empty-copy">还没有上传资料。</p>';
+    return;
+  }
+
+  agentFileList.innerHTML = state.agentFiles
+    .map(
+      (file) => `
+        <article class="agent-file-item">
+          <strong>${escapeHtml(file.name)}</strong>
+          <span>${escapeHtml(file.type || "未知类型")} · ${Math.max(1, Math.round(file.size / 1024))} KB</span>
+        </article>
+      `
+    )
+    .join("");
 }
 
 function renderOutput(result) {
   const meta = templateMeta[state.selectedTemplate];
   outputTitle.textContent = result.title || meta.title;
   outputSubtitle.textContent = result.subtitle || meta.subtitle;
+  outputSubtitle.removeAttribute("style");
   aiScore.textContent = result.aiScore || meta.aiScore;
   state.currentDocument = Array.isArray(result.content) ? result.content : [];
   outputBody.innerHTML = state.currentDocument.map((item) => `<p>${escapeHtml(item)}</p>`).join("");
@@ -299,6 +347,7 @@ function syncFormWithStudent() {
   recommenderRole.value = profile.recommenderRole || "授课教师 / 项目导师";
   relationshipDuration.value = profile.relationshipDuration || "1-2 年";
   recommendationEvidence.value = profile.recommendationEvidence || "";
+  agentProgramInput.value = agentProgramInput.value || profile.targetProgram || "";
 }
 
 function syncTemplateState() {
@@ -308,16 +357,35 @@ function syncTemplateState() {
     card.classList.toggle("selected", card.dataset.template === state.selectedTemplate);
   });
   modeNavItems.forEach((item) => {
-    item.classList.toggle("active", item.dataset.mode === state.selectedTemplate);
+    item.classList.toggle("active", state.currentView === "writer" && item.dataset.mode === state.selectedTemplate);
   });
-  window.location.hash = `writer/${state.selectedTemplate}`;
+}
+
+function syncViewState() {
+  writerView.classList.toggle("hidden", state.currentView !== "writer");
+  agentView.classList.toggle("hidden", state.currentView !== "agent");
+  viewNavItems.forEach((item) => {
+    item.classList.toggle("active", item.dataset.view === state.currentView);
+  });
+}
+
+function syncAgentMode() {
+  const isUpload = state.agentMode === "upload";
+  agentUploadTab.classList.toggle("active", isUpload);
+  agentLibraryTab.classList.toggle("active", !isUpload);
+  agentUploadPanel.classList.toggle("hidden", !isUpload);
+  agentLibraryPanel.classList.toggle("hidden", isUpload);
 }
 
 function syncAll() {
   renderStudentList();
+  renderAgentLibrary();
+  renderAgentFiles();
   renderInsights(getSelectedProfile());
   syncFormWithStudent();
   syncTemplateState();
+  syncViewState();
+  syncAgentMode();
 }
 
 function openModal() {
@@ -326,14 +394,6 @@ function openModal() {
 
 function closeModal() {
   modalBackdrop.classList.add("hidden");
-}
-
-function openApiSettings() {
-  apiSettingsBackdrop.classList.remove("hidden");
-}
-
-function closeApiSettings() {
-  apiSettingsBackdrop.classList.add("hidden");
 }
 
 function openStudentEditor() {
@@ -398,7 +458,7 @@ function createStudent() {
     syncAll();
     closeModal();
     resetModalForm();
-    setHeroStatus(`已创建 ${profile.displayName} 的试用档案。`, "success");
+    setStatusMessage(`已创建 ${profile.displayName} 的试用档案。`, "success");
   } finally {
     createStudentButton.disabled = false;
     createStudentButton.textContent = "确认创建";
@@ -415,12 +475,12 @@ function saveStudentEdits() {
   profile.tags = splitList(editStudentTagsInput.value);
   syncAll();
   closeStudentEditor();
-  setHeroStatus("已更新当前试用档案。", "success");
+  setStatusMessage("已更新当前档案。", "success");
 }
 
 function deleteCurrentStudent() {
   if (state.studentOrder.length === 1) {
-    setHeroStatus("至少保留一个试用档案，方便继续生成。", "warning");
+    setStatusMessage("至少保留一个试用档案，方便继续生成。", "warning");
     return;
   }
   const profile = getSelectedProfile();
@@ -431,7 +491,7 @@ function deleteCurrentStudent() {
   state.studentOrder = state.studentOrder.filter((item) => item !== profile.id);
   state.selectedStudent = state.studentOrder[0];
   syncAll();
-  setHeroStatus("已删除当前试用档案。", "success");
+  setStatusMessage("已删除当前档案。", "success");
 }
 
 function collectWriterPayload(requestMode) {
@@ -495,7 +555,7 @@ function buildUserPrompt(payload) {
 async function runCompletion(messages) {
   const config = getApiConfigFromInputs();
   if (!config.apiKey) {
-    throw new Error("请先在右上角输入 API Key。");
+    throw new Error("请先在顶部输入 API Key。");
   }
 
   const response = await fetch(`${config.baseUrl}/chat/completions`, {
@@ -549,9 +609,9 @@ async function generateDocument(mode) {
       aiScore: "实时生成",
       content: textToParagraphs(content),
     });
-    setHeroStatus(`${label}完成，可以继续人工修改或点“降低 AI 痕迹”。`, "success");
+    setStatusMessage(`${label}完成，可以继续人工修改或点“降低 AI 痕迹”。`, "success");
   } catch (error) {
-    setHeroStatus(error.message || "生成失败。", "danger");
+    setStatusMessage(error.message || "生成失败。", "danger");
   } finally {
     button.disabled = false;
     button.textContent = original;
@@ -560,7 +620,7 @@ async function generateDocument(mode) {
 
 async function humanizeDocument() {
   if (!state.currentDocument.length) {
-    setHeroStatus("当前还没有可优化的文稿。", "warning");
+    setStatusMessage("当前还没有可优化的文稿。", "warning");
     return;
   }
 
@@ -589,9 +649,9 @@ async function humanizeDocument() {
       aiScore: "已优化",
       content: textToParagraphs(content),
     });
-    setHeroStatus("已完成自然化改写。", "success");
+    setStatusMessage("已完成自然化改写。", "success");
   } catch (error) {
-    setHeroStatus(error.message || "优化失败。", "danger");
+    setStatusMessage(error.message || "优化失败。", "danger");
   } finally {
     humanizeButton.disabled = false;
     humanizeButton.textContent = original;
@@ -600,7 +660,7 @@ async function humanizeDocument() {
 
 function exportDocument() {
   if (!state.currentDocument.length) {
-    setHeroStatus("当前没有可导出的内容。", "warning");
+    setStatusMessage("当前没有可导出的内容。", "warning");
     return;
   }
 
@@ -612,9 +672,145 @@ function exportDocument() {
   URL.revokeObjectURL(link.href);
 }
 
+function switchView(view) {
+  state.currentView = view;
+  window.location.hash = view === "agent" ? "agent" : `writer/${state.selectedTemplate}`;
+  syncViewState();
+  syncTemplateState();
+}
+
+function setAgentMode(mode) {
+  state.agentMode = mode;
+  syncAgentMode();
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error(`读取文件失败：${file.name}`));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function extractAgentMaterials(files) {
+  const textBlocks = [];
+  const imageParts = [];
+  const unsupported = [];
+
+  for (const file of files) {
+    const lower = file.name.toLowerCase();
+    const isTextLike =
+      file.type.startsWith("text/") ||
+      [".txt", ".md", ".markdown", ".csv", ".json"].some((ext) => lower.endsWith(ext));
+
+    if (isTextLike) {
+      const text = await file.text();
+      if (text.trim()) {
+        textBlocks.push(`文件：${file.name}\n${text.slice(0, 12000)}`);
+      }
+      continue;
+    }
+
+    if (file.type.startsWith("image/")) {
+      const dataUrl = await readFileAsDataUrl(file);
+      imageParts.push({
+        type: "image_url",
+        image_url: { url: dataUrl },
+      });
+      continue;
+    }
+
+    unsupported.push(file.name);
+  }
+
+  return { textBlocks, imageParts, unsupported };
+}
+
+function buildAgentPrompt(materials) {
+  const profile = getSelectedProfile();
+  const lines = [
+    "请根据以下学生材料，直接生成一版英文个人陈述（PS）首稿。",
+    "要求：真实、具体、有叙事线，不要空泛套话。",
+    `学生姓名：${profile.displayName}`,
+    `申请阶段：${profile.applicationTrack}`,
+    `目标项目：${agentProgramInput.value.trim() || profile.targetProgram}`,
+    `已有档案摘要：${profile.summary}`,
+    `重点强调：${agentInstructionInput.value.trim() || profile.focus}`,
+    `已有亮点：${(profile.highlights || []).join("；")}`,
+    `已有证据：${(profile.evidence || []).join("；")}`,
+    "",
+    "以下是上传材料中可直接读取的内容：",
+    materials.textBlocks.join("\n\n---\n\n") || "无可提取文本，仅参考图片内容。",
+  ];
+
+  if (materials.unsupported.length) {
+    lines.push("", `以下文件当前静态版无法自动解析，请只将其视为补充：${materials.unsupported.join("、")}`);
+  }
+
+  lines.push("", "请输出 650-850 英文单词左右的可用 PS 首稿。");
+  return lines.join("\n");
+}
+
+async function generateAgentPs() {
+  const original = agentGenerateButton.textContent;
+  agentGenerateButton.disabled = true;
+  agentGenerateButton.textContent = "分析中...";
+
+  try {
+    const materials = await extractAgentMaterials(state.agentFiles);
+    if (state.agentMode === "upload" && !materials.textBlocks.length && !materials.imageParts.length) {
+      throw new Error("请先上传可读取的 TXT / Markdown / CSV / JSON / 图片资料。");
+    }
+
+    const userContent = [{ type: "text", text: buildAgentPrompt(materials) }, ...materials.imageParts];
+    const content = await runCompletion([
+      { role: "system", content: buildSystemPrompt() },
+      { role: "user", content: userContent },
+    ]);
+
+    state.agentResult = textToParagraphs(content);
+    agentOutputSubtitle.textContent = `已根据 ${state.agentFiles.length || 1} 份资料生成 PS。`;
+    agentOutputBody.innerHTML = state.agentResult.map((item) => `<p>${escapeHtml(item)}</p>`).join("");
+    setStatusMessage("文书Agent 已完成 PS 生成。", "success");
+  } catch (error) {
+    agentOutputSubtitle.textContent = "生成失败";
+    agentOutputBody.innerHTML = `<p>${escapeHtml(error.message || "生成失败，请稍后重试。")}</p>`;
+    setStatusMessage(error.message || "文书Agent 生成失败。", "danger");
+  } finally {
+    agentGenerateButton.disabled = false;
+    agentGenerateButton.textContent = original;
+  }
+}
+
+function useAgentResult() {
+  if (!state.agentResult.length) {
+    setStatusMessage("Agent 结果还没有生成。", "warning");
+    return;
+  }
+  state.currentView = "writer";
+  state.selectedTemplate = "ps";
+  renderOutput({
+    title: "个人陈述 PS",
+    subtitle: "已从文书Agent 载入到主工作台",
+    aiScore: "Agent 输出",
+    content: state.agentResult,
+  });
+  syncAll();
+  window.location.hash = "writer/ps";
+  setStatusMessage("已将 Agent 结果载入主工作台。", "success");
+}
+
 function initializeFromHash() {
-  const modeFromHash = window.location.hash.replace(/^#writer\//, "");
+  const hash = window.location.hash.replace(/^#/, "");
+  if (hash === "agent") {
+    state.currentView = "agent";
+    return;
+  }
+
+  const modeFromHash = hash.replace(/^writer\//, "");
   if (modeFromHash && templateMeta[modeFromHash]) {
+    state.currentView = "writer";
     state.selectedTemplate = modeFromHash;
   }
 }
@@ -631,13 +827,6 @@ modalBackdrop.addEventListener("click", (event) => {
     closeModal();
   }
 });
-openApiSettingsButton.addEventListener("click", openApiSettings);
-closeApiSettingsButton.addEventListener("click", closeApiSettings);
-apiSettingsBackdrop.addEventListener("click", (event) => {
-  if (event.target === apiSettingsBackdrop) {
-    closeApiSettings();
-  }
-});
 closeEditStudentButton.addEventListener("click", closeStudentEditor);
 cancelEditStudentButton.addEventListener("click", closeStudentEditor);
 studentEditBackdrop.addEventListener("click", (event) => {
@@ -645,8 +834,32 @@ studentEditBackdrop.addEventListener("click", (event) => {
     closeStudentEditor();
   }
 });
+
 saveApiConfigButton.addEventListener("click", saveApiConfig);
 clearApiConfigButton.addEventListener("click", clearApiConfig);
+
+agentUploadTab.addEventListener("click", () => setAgentMode("upload"));
+agentLibraryTab.addEventListener("click", () => setAgentMode("library"));
+agentFileInput.addEventListener("change", (event) => {
+  state.agentFiles = [...(event.target.files || [])];
+  renderAgentFiles();
+});
+agentDropzone.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  agentDropzone.classList.add("dragover");
+});
+agentDropzone.addEventListener("dragleave", () => {
+  agentDropzone.classList.remove("dragover");
+});
+agentDropzone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  agentDropzone.classList.remove("dragover");
+  state.agentFiles = [...(event.dataTransfer?.files || [])];
+  renderAgentFiles();
+});
+agentGenerateButton.addEventListener("click", generateAgentPs);
+agentUseResultButton.addEventListener("click", useAgentResult);
+
 createStudentButton.addEventListener("click", createStudent);
 saveEditStudentButton.addEventListener("click", saveStudentEdits);
 editStudentButton.addEventListener("click", openStudentEditor);
@@ -655,27 +868,38 @@ generateDraftButton.addEventListener("click", () => generateDocument("draft"));
 generateOutlineButton.addEventListener("click", () => generateDocument("outline"));
 humanizeButton.addEventListener("click", humanizeDocument);
 exportButton.addEventListener("click", exportDocument);
+
 templateCards.forEach((card) => {
   card.addEventListener("click", () => {
     if (!templateMeta[card.dataset.template]) {
       return;
     }
+    state.currentView = "writer";
     state.selectedTemplate = card.dataset.template;
+    window.location.hash = `writer/${state.selectedTemplate}`;
     syncAll();
   });
 });
+
 modeNavItems.forEach((item) => {
   item.addEventListener("click", () => {
     if (!templateMeta[item.dataset.mode]) {
       return;
     }
+    state.currentView = "writer";
     state.selectedTemplate = item.dataset.mode;
+    window.location.hash = `writer/${state.selectedTemplate}`;
     syncAll();
   });
 });
+
+viewNavItems.forEach((item) => {
+  item.addEventListener("click", () => switchView(item.dataset.view));
+});
+
 window.addEventListener("hashchange", () => {
   initializeFromHash();
-  syncTemplateState();
+  syncAll();
 });
 
 initializeFromHash();
@@ -688,4 +912,3 @@ renderOutput({
   content: state.currentDocument,
 });
 syncAll();
-setHeroStatus("静态试用版已就绪，适合先挂到 GitHub Pages 进行试用。", "info");

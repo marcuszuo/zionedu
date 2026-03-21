@@ -34,6 +34,10 @@
 
         <nav class="nav-group">
           <p class="nav-label">文书写作</p>
+          <button class="nav-item" data-view="agent">
+            <span class="nav-icon">✦</span>
+            <span>文书Agent</span>
+          </button>
           <button class="nav-item" data-mode="ps">
             <span class="nav-icon">✎</span>
             <span>写 PS</span>
@@ -57,11 +61,15 @@
       <main class="main-content">
         <section class="topbar">
           <div class="topbar-actions">
-            <button class="ghost-btn compact-btn" id="open-api-settings-btn">AI 设置</button>
+            <input class="compact-input" id="api-base-input" type="text" placeholder="API Base" />
+            <input class="compact-input" id="api-model-input" type="text" placeholder="Model" />
+            <input class="compact-input wide" id="api-key-input" type="password" placeholder="输入 API Key，保存后下次自动带出" />
+            <button class="ghost-btn compact-btn" id="clear-api-config-btn">清除</button>
+            <button class="primary-btn compact-btn" id="save-api-config-btn">保存 API</button>
           </div>
         </section>
 
-        <section class="content-grid">
+        <section class="content-grid" id="writer-view">
           <div class="panel student-panel">
             <div class="panel-header">
               <div>
@@ -277,6 +285,81 @@
           </div>
         </section>
 
+        <section class="agent-shell hidden" id="agent-view">
+          <div class="agent-hero">
+            <span class="agent-badge">智能文书助手</span>
+            <h1>全套申请文书，一次搞定</h1>
+            <p>上传新档案或从资料库选择学生，AI 会先分析材料，再直接生成一版可继续修改的 PS。</p>
+          </div>
+
+          <div class="agent-picker">
+            <h2>选择学生档案</h2>
+            <p>上传新档案或从资料库选择已有学生。</p>
+            <div class="agent-tabs">
+              <button class="agent-tab active" id="agent-upload-tab">上传新档案</button>
+              <button class="agent-tab" id="agent-library-tab">从资料库选择</button>
+            </div>
+          </div>
+
+          <div class="agent-grid">
+            <div class="agent-left">
+              <section class="agent-panel" id="agent-upload-panel">
+                <label class="agent-dropzone" for="agent-file-input" id="agent-dropzone">
+                  <input id="agent-file-input" type="file" multiple hidden />
+                  <div class="agent-drop-icon">⇪</div>
+                  <strong>点击或拖拽上传</strong>
+                  <span>支持 TXT、Markdown、CSV、JSON、图片格式</span>
+                  <small>PDF / Word 在当前静态版里无法自动解析，建议先转成 TXT 或截图上传。</small>
+                </label>
+                <div class="agent-file-list" id="agent-file-list">
+                  <p class="empty-copy">还没有上传资料。</p>
+                </div>
+              </section>
+
+              <section class="agent-panel hidden" id="agent-library-panel">
+                <div class="agent-library-list" id="agent-library-list"></div>
+              </section>
+            </div>
+
+            <div class="agent-right">
+              <section class="agent-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="panel-title">Agent 生成设置</p>
+                    <p class="panel-subtitle">基于上传材料自动组织背景、证据与叙事线。</p>
+                  </div>
+                </div>
+                <div class="generator-form">
+                  <label>
+                    <span>目标项目</span>
+                    <input id="agent-program-input" type="text" placeholder="如：Business Analytics / Media Studies" />
+                  </label>
+                  <label>
+                    <span>补充要求</span>
+                    <textarea id="agent-instruction-input" rows="5" placeholder="如：突出领导力、跨学科能力、创业经历与目标项目匹配。"></textarea>
+                  </label>
+                  <div class="form-actions">
+                    <button class="primary-btn" id="agent-generate-btn">AI 生成 PS</button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="agent-panel">
+                <div class="output-header">
+                  <div>
+                    <p class="panel-title">Agent 生成结果</p>
+                    <p class="panel-subtitle" id="agent-output-subtitle">上传资料后，AI 会在这里输出 PS。</p>
+                  </div>
+                  <button class="text-btn" id="agent-use-result-btn">载入主工作台</button>
+                </div>
+                <div class="output-body" id="agent-output-body">
+                  <p>这里会显示 Agent 根据上传资料自动生成的 PS。你可以再一键载入到右侧主工作台继续润色。</p>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
 
@@ -329,35 +412,6 @@
         <div class="modal-actions">
           <button class="ghost-btn" id="cancel-modal-btn">取消</button>
           <button class="primary-btn" id="create-student-btn">确认创建</button>
-        </div>
-      </section>
-    </div>
-
-    <div class="modal-backdrop hidden" id="api-settings-backdrop">
-      <section class="modal modal-narrow">
-        <div class="modal-header">
-          <h2>AI 设置</h2>
-          <button class="icon-btn" id="close-api-settings-btn" aria-label="关闭">×</button>
-        </div>
-
-        <div class="generator-form">
-          <label class="field">
-            <span>API Base</span>
-            <input class="compact-input modal-input" id="api-base-input" type="text" placeholder="https://api.newapi.life/v1" />
-          </label>
-          <label class="field">
-            <span>Model</span>
-            <input class="compact-input modal-input" id="api-model-input" type="text" placeholder="gpt-5" />
-          </label>
-          <label class="field">
-            <span>API Key</span>
-            <input class="compact-input modal-input" id="api-key-input" type="password" placeholder="输入 API Key，保存后下次自动带出" />
-          </label>
-        </div>
-
-        <div class="modal-actions">
-          <button class="ghost-btn" id="clear-api-config-btn">清除</button>
-          <button class="primary-btn" id="save-api-config-btn">保存 API</button>
         </div>
       </section>
     </div>
