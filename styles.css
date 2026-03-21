@@ -180,11 +180,6 @@ textarea {
   min-width: 280px;
 }
 
-.modal-input {
-  width: 100%;
-  min-width: 0;
-}
-
 .compact-btn {
   padding: 10px 16px;
 }
@@ -763,6 +758,9 @@ textarea {
   padding: 24px;
   background: rgba(8, 18, 38, 0.28);
   backdrop-filter: blur(6px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  z-index: 40;
 }
 
 .hidden {
@@ -774,10 +772,8 @@ textarea {
   padding: 30px;
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.94);
-}
-
-.modal-narrow {
-  width: min(560px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
 }
 
 .modal-header h2 {
