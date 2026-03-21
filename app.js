@@ -57,6 +57,9 @@ const apiBaseInput = document.getElementById("api-base-input");
 const apiModelInput = document.getElementById("api-model-input");
 const saveApiConfigButton = document.getElementById("save-api-config-btn");
 const clearApiConfigButton = document.getElementById("clear-api-config-btn");
+const openApiSettingsButton = document.getElementById("open-api-settings-btn");
+const apiSettingsBackdrop = document.getElementById("api-settings-backdrop");
+const closeApiSettingsButton = document.getElementById("close-api-settings-btn");
 
 const agentUploadTab = document.getElementById("agent-upload-tab");
 const agentLibraryTab = document.getElementById("agent-library-tab");
@@ -240,6 +243,7 @@ function saveApiConfig() {
   setStoredValue(API_MODEL_STORAGE, model);
   renderApiConfig();
   setStatusMessage("API 配置已保存。", "success");
+  closeApiSettings();
 }
 
 function clearApiConfig() {
@@ -252,6 +256,9 @@ function clearApiConfig() {
 }
 
 function renderInsightList(element, items) {
+  if (!element) {
+    return;
+  }
   element.innerHTML = (items || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 }
 
@@ -397,6 +404,14 @@ function openModal() {
 
 function closeModal() {
   modalBackdrop.classList.add("hidden");
+}
+
+function openApiSettings() {
+  apiSettingsBackdrop?.classList.remove("hidden");
+}
+
+function closeApiSettings() {
+  apiSettingsBackdrop?.classList.add("hidden");
 }
 
 function openStudentEditor() {
@@ -558,7 +573,7 @@ function buildUserPrompt(payload) {
 async function runCompletion(messages) {
   const config = getApiConfigFromInputs();
   if (!config.apiKey) {
-    throw new Error("请先在顶部输入 API Key。");
+    throw new Error("请先在 AI 设置里填写 API Key。");
   }
 
   const response = await fetch(`${config.baseUrl}/chat/completions`, {
@@ -853,7 +868,9 @@ function initializeFromHash() {
 }
 
 function initializeTrialUi() {
-  docList.innerHTML = '<p class="empty-copy">静态试用版不保存历史文稿，建议生成后立即导出。</p>';
+  if (docList) {
+    docList.innerHTML = '<p class="empty-copy">静态试用版不保存历史文稿，建议生成后立即导出。</p>';
+  }
   trimTemplates.forEach((element) => element.classList.add("hidden"));
 }
 
@@ -862,6 +879,13 @@ closeModalButtons.forEach((button) => button?.addEventListener("click", closeMod
 modalBackdrop.addEventListener("click", (event) => {
   if (event.target === modalBackdrop) {
     closeModal();
+  }
+});
+openApiSettingsButton?.addEventListener("click", openApiSettings);
+closeApiSettingsButton?.addEventListener("click", closeApiSettings);
+apiSettingsBackdrop?.addEventListener("click", (event) => {
+  if (event.target === apiSettingsBackdrop) {
+    closeApiSettings();
   }
 });
 closeEditStudentButton.addEventListener("click", closeStudentEditor);
@@ -900,7 +924,7 @@ agentUseResultButton.addEventListener("click", useAgentResult);
 createStudentButton.addEventListener("click", createStudent);
 saveEditStudentButton.addEventListener("click", saveStudentEdits);
 editStudentButton.addEventListener("click", openStudentEditor);
-deleteStudentButton.addEventListener("click", deleteCurrentStudent);
+deleteStudentButton?.addEventListener("click", deleteCurrentStudent);
 generateDraftButton.addEventListener("click", () => generateDocument("draft"));
 generateOutlineButton.addEventListener("click", () => generateDocument("outline"));
 humanizeButton.addEventListener("click", humanizeDocument);
