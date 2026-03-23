@@ -18,15 +18,15 @@
 
         <nav class="nav-group">
           <p class="nav-label">通用</p>
-          <button class="nav-item">
+          <button class="nav-item" data-page="overview">
             <span class="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M4.5 10.5 12 4l7.5 6.5V19a1 1 0 0 1-1 1h-3.75v-5h-5.5v5H5.5a1 1 0 0 1-1-1v-8.5Z" />
               </svg>
             </span>
-            <span>试用总览</span>
+            <span>总览</span>
           </button>
-          <button class="nav-item active">
+          <button class="nav-item" data-page="students">
             <span class="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M5 5.5h14v13H5z" />
@@ -50,7 +50,7 @@
 
         <nav class="nav-group">
           <p class="nav-label">文书写作</p>
-          <button class="nav-item" data-view="agent">
+          <button class="nav-item" data-page="agent">
             <span class="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M6 18 18 6" />
@@ -61,7 +61,7 @@
             </span>
             <span>文书Agent</span>
           </button>
-          <button class="nav-item" data-mode="ps">
+          <button class="nav-item" data-page="ps">
             <span class="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M5 18.5 7 14l7.5-7.5a1.7 1.7 0 0 1 2.4 0l.6.6a1.7 1.7 0 0 1 0 2.4L10 17l-5 1.5Z" />
@@ -70,7 +70,7 @@
             </span>
             <span>写 PS</span>
           </button>
-          <button class="nav-item" data-mode="rl">
+          <button class="nav-item" data-page="rl">
             <span class="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <rect x="4.5" y="6.5" width="15" height="11" rx="2" />
@@ -98,36 +98,136 @@
 
       <main class="main-content">
         <section class="topbar">
+          <div class="topbar-copy">
+            <p class="topbar-kicker" id="page-kicker">Dashboard</p>
+            <h1 class="topbar-title" id="page-title">下午好，欢迎回来</h1>
+            <p class="topbar-subtitle" id="page-subtitle">先看今天的客户使用情况，再继续处理文书。</p>
+          </div>
           <div class="topbar-actions">
             <button class="ghost-btn compact-btn" id="open-api-settings-btn">AI 设置</button>
           </div>
         </section>
 
-        <section class="content-grid" id="writer-view">
+        <section class="overview-grid dashboard-grid" id="overview-view">
+          <article class="hero dashboard-hero">
+            <div>
+              <p class="eyebrow">ZionApply Dashboard</p>
+              <h2 class="dashboard-heading">下午好，Marcus，今天可以先从高优先级客户开始。</h2>
+              <p class="hero-copy">
+                当前站点已经具备学生档案、PS、推荐信和文书Agent 四条主流程。你可以先在总览里看使用情况，再从左侧进入对应页面继续操作。
+              </p>
+            </div>
+            <div class="hero-status">今日已就绪</div>
+          </article>
+
+          <article class="stat-card accent">
+            <p class="stat-kicker">活跃客户</p>
+            <strong id="metric-active-students">1</strong>
+            <p>当前资料库中已准备好可直接生成文书的学生数</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-kicker">今日生成</p>
+            <strong id="metric-generated-docs">12</strong>
+            <p>按站点试用节奏估算的 PS / 推荐信生成次数</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-kicker">待处理事项</p>
+            <strong id="metric-pending-actions">3</strong>
+            <p>建议优先补全档案、检查 API、再继续生成</p>
+          </article>
+
+          <article class="panel dashboard-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-title">本周使用概览</p>
+                <p class="panel-subtitle">把最常用的客户行为和内容产出放在一屏里查看。</p>
+              </div>
+            </div>
+            <div class="dashboard-metrics">
+              <div class="metric-item">
+                <span class="metric-label">新建学生档案</span>
+                <strong class="metric-value">8</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">PS 生成次数</span>
+                <strong class="metric-value">21</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">推荐信生成次数</span>
+                <strong class="metric-value">14</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Agent 上传次数</span>
+                <strong class="metric-value">6</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel dashboard-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-title">快捷入口</p>
+                <p class="panel-subtitle">从这里直接跳到今天最常做的几个页面。</p>
+              </div>
+            </div>
+            <div class="quick-links">
+              <button class="quick-link-card" data-page-jump="students">
+                <strong>查看学生档案</strong>
+                <span>集中管理学生、标签和重点素材</span>
+              </button>
+              <button class="quick-link-card" data-page-jump="ps">
+                <strong>继续写 PS</strong>
+                <span>进入个人陈述工作台直接生成或润色</span>
+              </button>
+              <button class="quick-link-card" data-page-jump="agent">
+                <strong>打开文书Agent</strong>
+                <span>上传资料，自动分析并生成首版 PS</span>
+              </button>
+            </div>
+          </article>
+        </section>
+
+        <section class="content-grid hidden" id="students-view">
           <div class="panel student-panel">
             <div class="panel-header">
               <div>
-                <p class="panel-title">学生档案</p>
-                <p class="panel-subtitle">先选学生，再开始写作。</p>
+                <p class="panel-title">学生列表</p>
+                <p class="panel-subtitle">管理资料库里的学生，并切换当前操作对象。</p>
               </div>
             </div>
 
-            <div class="student-list" id="student-list">
-              <article class="student-card active" data-student="emily">
-                <div class="student-topline">
-                  <div>
-                    <h3>Emily Zhang</h3>
-                    <p>美本申请 · Digital Media</p>
-                  </div>
-                  <span class="status-badge ready">就绪</span>
-                </div>
-                <p class="student-summary">GPA 3.82 · IELTS 7.5 · 影像叙事方向</p>
-              </article>
-
-            </div>
+            <div class="student-list js-student-list"></div>
 
             <div class="student-tools">
-              <button class="ghost-btn compact-btn" id="edit-student-btn">编辑当前档案</button>
+              <button class="ghost-btn compact-btn" data-edit-student>编辑当前档案</button>
+              <button class="primary-btn compact-btn" data-open-student-modal>新建档案</button>
+            </div>
+          </div>
+
+          <div class="panel archive-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-title">档案详情</p>
+                <p class="panel-subtitle">当前学生的摘要、亮点与可用素材。</p>
+              </div>
+            </div>
+            <div class="archive-detail" id="student-detail-card"></div>
+          </div>
+        </section>
+
+        <section class="content-grid hidden" id="writer-view">
+          <div class="panel student-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-title">当前学生</p>
+                <p class="panel-subtitle">写作页可以快速切换当前使用的学生档案。</p>
+              </div>
+            </div>
+
+            <div class="student-list js-student-list"></div>
+
+            <div class="student-tools">
+              <button class="ghost-btn compact-btn" data-edit-student>编辑当前档案</button>
               <button class="primary-btn compact-btn" data-open-student-modal>新建档案</button>
             </div>
           </div>
@@ -422,6 +522,6 @@
       </section>
     </div>
 
-    <script src="./app.js"></script>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>

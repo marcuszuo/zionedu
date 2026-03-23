@@ -1,10 +1,12 @@
-import mammoth from "mammoth";
-import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
+import mammoth from "https://esm.sh/mammoth@1.9.1";
+import * as pdfjs from "https://esm.sh/pdfjs-dist@4.10.38/legacy/build/pdf.mjs";
 
 const API_KEY_STORAGE = "zionapply_api_key";
 const API_BASE_STORAGE = "zionapply_api_base";
 const API_MODEL_STORAGE = "zionapply_api_model";
 const memoryStorage = {};
+
+pdfjs.GlobalWorkerOptions.workerSrc = "https://esm.sh/pdfjs-dist@4.10.38/build/pdf.worker.mjs";
 
 const modalBackdrop = document.getElementById("modal-backdrop");
 const openModalButtons = [
@@ -26,12 +28,21 @@ const studentHighlightsInput = document.getElementById("student-highlights-input
 const studentEvidenceInput = document.getElementById("student-evidence-input");
 const studentStrategyInput = document.getElementById("student-strategy-input");
 
-const studentList = document.getElementById("student-list");
 const templateCards = document.querySelectorAll(".template-card");
-const viewNavItems = document.querySelectorAll(".nav-item[data-view]");
-const modeNavItems = document.querySelectorAll(".nav-item[data-mode]");
+const pageNavItems = document.querySelectorAll(".nav-item[data-page]");
+const studentLists = document.querySelectorAll(".js-student-list");
+const overviewView = document.getElementById("overview-view");
+const studentsView = document.getElementById("students-view");
 const writerView = document.getElementById("writer-view");
 const agentView = document.getElementById("agent-view");
+const pageKicker = document.getElementById("page-kicker");
+const pageTitle = document.getElementById("page-title");
+const pageSubtitle = document.getElementById("page-subtitle");
+const studentDetailCard = document.getElementById("student-detail-card");
+const quickLinkCards = document.querySelectorAll("[data-page-jump]");
+const metricActiveStudents = document.getElementById("metric-active-students");
+const metricGeneratedDocs = document.getElementById("metric-generated-docs");
+const metricPendingActions = document.getElementById("metric-pending-actions");
 
 const outputBody = document.getElementById("output-body");
 const outputTitle = document.getElementById("output-title");
@@ -76,7 +87,7 @@ const agentOutputBody = document.getElementById("agent-output-body");
 const agentOutputSubtitle = document.getElementById("agent-output-subtitle");
 const agentUseResultButton = document.getElementById("agent-use-result-btn");
 
-const editStudentButton = document.getElementById("edit-student-btn");
+const editStudentButtons = document.querySelectorAll("[data-edit-student]");
 const deleteStudentButton = document.getElementById("delete-student-btn");
 const studentEditBackdrop = document.getElementById("student-edit-backdrop");
 const closeEditStudentButton = document.getElementById("close-edit-student-btn");
@@ -120,14 +131,14 @@ const seedStudents = {
 const state = {
   students: cloneData(seedStudents),
   studentOrder: Object.keys(seedStudents),
-  currentView: "writer",
+  currentPage: "overview",
   selectedStudent: "emily",
   selectedTemplate: "ps",
   agentMode: "upload",
   agentFiles: [],
   agentResult: [],
   currentDocument: [
-    "这里会显示 AI 生成的内容。先在顶部配置 API，然后点击“生成初稿”即可开始试用。",
+    "这里会显示 AI 生成的内容。先打开 AI 设置完成配置，然后点击“生成初稿”即可开始使用。",
   ],
 };
 
@@ -269,7 +280,7 @@ function renderInsights(profile) {
 }
 
 function renderStudentList() {
-  studentList.innerHTML = state.studentOrder
+  const markup = state.studentOrder
     .map((key) => {
       const student = state.students[key];
       return `
@@ -287,13 +298,52 @@ function renderStudentList() {
     })
     .join("");
 
-  studentList.querySelectorAll(".student-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      state.selectedStudent = card.dataset.student;
-      syncAll();
-      setStatusMessage(`已切换到 ${getSelectedProfile().displayName} 的档案。`, "info");
+  studentLists.forEach((container) => {
+    container.innerHTML = markup;
+    container.querySelectorAll(".student-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        state.selectedStudent = card.dataset.student;
+        syncAll();
+        setStatusMessage(`已切换到 ${getSelectedProfile().displayName} 的档案。`, "info");
+      });
     });
   });
+}
+
+function renderStudentDetail() {
+  if (!studentDetailCard) {
+    return;
+  }
+
+  const profile = getSelectedProfile();
+  studentDetailCard.innerHTML = `
+    <div class="detail-hero">
+      <div>
+        <h3>${escapeHtml(profile.displayName)}</h3>
+        <p>${escapeHtml(profile.applicationTrack)} · ${escapeHtml(profile.targetProgram)}</p>
+      </div>
+      <span class="status-badge ${escapeHtml(profile.statusTone || "review")}">${escapeHtml(profile.statusTone === "ready" ? "就绪" : profile.statusLabel || "待确认")}</span>
+    </div>
+    <p class="detail-summary">${escapeHtml(profile.summary || "当前还没有摘要。")}</p>
+    <div class="detail-block">
+      <p class="detail-label">标签</p>
+      <div class="detail-tags">${(profile.tags || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("") || "<span>待补充</span>"}</div>
+    </div>
+    <div class="detail-columns">
+      <div class="detail-block">
+        <p class="detail-label">亮点</p>
+        <ul>${(profile.highlights || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>待补充</li>"}</ul>
+      </div>
+      <div class="detail-block">
+        <p class="detail-label">证据</p>
+        <ul>${(profile.evidence || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>待补充</li>"}</ul>
+      </div>
+    </div>
+    <div class="detail-block">
+      <p class="detail-label">申请策略</p>
+      <ul>${(profile.strategy || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>待补充</li>"}</ul>
+    </div>
+  `;
 }
 
 function renderAgentLibrary() {
@@ -348,6 +398,26 @@ function renderOutput(result) {
   outputBody.innerHTML = state.currentDocument.map((item) => `<p>${escapeHtml(item)}</p>`).join("");
 }
 
+function renderOverviewMetrics() {
+  if (!metricActiveStudents || !metricGeneratedDocs || !metricPendingActions) {
+    return;
+  }
+
+  const activeStudents = state.studentOrder.length;
+  const generatedDocs = activeStudents * 6 + (state.agentResult.length ? 3 : 0);
+  const pendingActions = Math.max(
+    1,
+    state.studentOrder.filter((key) => {
+      const student = state.students[key];
+      return !(student.highlights || []).length || !(student.evidence || []).length;
+    }).length
+  );
+
+  metricActiveStudents.textContent = String(activeStudents);
+  metricGeneratedDocs.textContent = String(generatedDocs);
+  metricPendingActions.textContent = String(pendingActions);
+}
+
 function syncFormWithStudent() {
   const profile = getSelectedProfile();
   programInput.value = profile.targetProgram || "";
@@ -365,16 +435,49 @@ function syncTemplateState() {
   templateCards.forEach((card) => {
     card.classList.toggle("selected", card.dataset.template === state.selectedTemplate);
   });
-  modeNavItems.forEach((item) => {
-    item.classList.toggle("active", state.currentView === "writer" && item.dataset.mode === state.selectedTemplate);
-  });
 }
 
-function syncViewState() {
-  writerView.classList.toggle("hidden", state.currentView !== "writer");
-  agentView.classList.toggle("hidden", state.currentView !== "agent");
-  viewNavItems.forEach((item) => {
-    item.classList.toggle("active", item.dataset.view === state.currentView);
+function syncPageState() {
+  const pageMeta = {
+    overview: {
+      kicker: "Dashboard",
+      title: "下午好，欢迎回来",
+      subtitle: "先看今天的客户使用情况，再继续处理文书。",
+    },
+    students: {
+      kicker: "Students",
+      title: "学生档案",
+      subtitle: "集中管理学生资料、亮点和申请策略。",
+    },
+    ps: {
+      kicker: "Writer",
+      title: "个人陈述 PS",
+      subtitle: "围绕成长线、动机与项目匹配生成首稿。",
+    },
+    rl: {
+      kicker: "Writer",
+      title: "推荐信 RL",
+      subtitle: "用推荐人视角生成可信、具体的推荐信。",
+    },
+    agent: {
+      kicker: "Agent",
+      title: "文书Agent",
+      subtitle: "上传新材料，自动分析并生成 PS 首稿。",
+    },
+  };
+
+  const currentMeta = pageMeta[state.currentPage] || pageMeta.overview;
+  pageKicker.textContent = currentMeta.kicker;
+  pageTitle.textContent = currentMeta.title;
+  pageSubtitle.textContent = currentMeta.subtitle;
+
+  overviewView.classList.toggle("hidden", state.currentPage !== "overview");
+  studentsView.classList.toggle("hidden", state.currentPage !== "students");
+  writerView.classList.toggle("hidden", !["ps", "rl"].includes(state.currentPage));
+  agentView.classList.toggle("hidden", state.currentPage !== "agent");
+
+  pageNavItems.forEach((item) => {
+    item.classList.toggle("active", item.dataset.page === state.currentPage);
   });
 }
 
@@ -388,12 +491,14 @@ function syncAgentMode() {
 
 function syncAll() {
   renderStudentList();
+  renderStudentDetail();
   renderAgentLibrary();
   renderAgentFiles();
   renderInsights(getSelectedProfile());
+  renderOverviewMetrics();
   syncFormWithStudent();
   syncTemplateState();
-  syncViewState();
+  syncPageState();
   syncAgentMode();
 }
 
@@ -689,10 +794,13 @@ function exportDocument() {
   URL.revokeObjectURL(link.href);
 }
 
-function switchView(view) {
-  state.currentView = view;
-  window.location.hash = view === "agent" ? "agent" : `writer/${state.selectedTemplate}`;
-  syncViewState();
+function switchPage(page) {
+  state.currentPage = page;
+  if (page === "ps" || page === "rl") {
+    state.selectedTemplate = page;
+  }
+  window.location.hash = page;
+  syncPageState();
   syncTemplateState();
 }
 
@@ -839,7 +947,7 @@ function useAgentResult() {
     setStatusMessage("Agent 结果还没有生成。", "warning");
     return;
   }
-  state.currentView = "writer";
+  state.currentPage = "ps";
   state.selectedTemplate = "ps";
   renderOutput({
     title: "个人陈述 PS",
@@ -848,21 +956,22 @@ function useAgentResult() {
     content: state.agentResult,
   });
   syncAll();
-  window.location.hash = "writer/ps";
+  window.location.hash = "ps";
   setStatusMessage("已将 Agent 结果载入主工作台。", "success");
 }
 
 function initializeFromHash() {
   const hash = window.location.hash.replace(/^#/, "");
-  if (hash === "agent") {
-    state.currentView = "agent";
+  if (!hash) {
+    state.currentPage = "overview";
     return;
   }
 
-  const modeFromHash = hash.replace(/^writer\//, "");
-  if (modeFromHash && templateMeta[modeFromHash]) {
-    state.currentView = "writer";
-    state.selectedTemplate = modeFromHash;
+  if (["overview", "students", "agent", "ps", "rl"].includes(hash)) {
+    state.currentPage = hash;
+    if (hash === "ps" || hash === "rl") {
+      state.selectedTemplate = hash;
+    }
   }
 }
 
@@ -922,7 +1031,7 @@ agentUseResultButton.addEventListener("click", useAgentResult);
 
 createStudentButton.addEventListener("click", createStudent);
 saveEditStudentButton.addEventListener("click", saveStudentEdits);
-editStudentButton.addEventListener("click", openStudentEditor);
+editStudentButtons.forEach((button) => button.addEventListener("click", openStudentEditor));
 deleteStudentButton?.addEventListener("click", deleteCurrentStudent);
 generateDraftButton.addEventListener("click", () => generateDocument("draft"));
 generateOutlineButton.addEventListener("click", () => generateDocument("outline"));
@@ -934,27 +1043,21 @@ templateCards.forEach((card) => {
     if (!templateMeta[card.dataset.template]) {
       return;
     }
-    state.currentView = "writer";
+    state.currentPage = card.dataset.template;
     state.selectedTemplate = card.dataset.template;
-    window.location.hash = `writer/${state.selectedTemplate}`;
+    window.location.hash = state.selectedTemplate;
     syncAll();
   });
 });
 
-modeNavItems.forEach((item) => {
+pageNavItems.forEach((item) => {
   item.addEventListener("click", () => {
-    if (!templateMeta[item.dataset.mode]) {
-      return;
-    }
-    state.currentView = "writer";
-    state.selectedTemplate = item.dataset.mode;
-    window.location.hash = `writer/${state.selectedTemplate}`;
-    syncAll();
+    switchPage(item.dataset.page);
   });
 });
 
-viewNavItems.forEach((item) => {
-  item.addEventListener("click", () => switchView(item.dataset.view));
+quickLinkCards.forEach((item) => {
+  item.addEventListener("click", () => switchPage(item.dataset.pageJump));
 });
 
 window.addEventListener("hashchange", () => {
@@ -967,8 +1070,8 @@ initializeTrialUi();
 renderApiConfig();
 renderOutput({
   title: templateMeta.ps.title,
-  subtitle: "先配置 API，再开始试用 PS / RL 生成",
-  aiScore: "Static Trial",
+  subtitle: "打开 AI 设置后，即可开始生成 PS 或推荐信",
+  aiScore: "可生成",
   content: state.currentDocument,
 });
 syncAll();
