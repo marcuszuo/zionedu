@@ -302,7 +302,13 @@
                 <div class="output-actions">
                   <span class="ai-score" id="ai-score">实时生成</span>
                   <button class="text-btn" id="humanize-btn">降低 AI 痕迹</button>
-                  <button class="text-btn" id="export-btn">导出文稿</button>
+                  <div class="export-menu-wrap">
+                    <button class="text-btn" id="export-btn" type="button">导出文稿</button>
+                    <div class="export-menu hidden" id="export-menu">
+                      <button class="export-option" id="export-word-btn" type="button">导出 Word</button>
+                      <button class="export-option" id="export-pdf-btn" type="button">导出 PDF</button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="output-body" id="output-body">

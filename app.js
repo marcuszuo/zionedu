@@ -1,5 +1,7 @@
 import mammoth from "https://esm.sh/mammoth@1.9.1";
 import * as pdfjs from "https://esm.sh/pdfjs-dist@4.10.38/legacy/build/pdf.mjs";
+import { Document, Packer, Paragraph, TextRun } from "https://esm.sh/docx@9.5.1";
+import { jsPDF } from "https://esm.sh/jspdf@2.5.2";
 
 const API_KEY_STORAGE = "zionapply_api_key";
 const API_BASE_STORAGE = "zionapply_api_base";
@@ -59,6 +61,9 @@ const recommendationEvidence = document.getElementById("recommendation-evidence"
 const humanizeButton = document.getElementById("humanize-btn");
 const aiScore = document.getElementById("ai-score");
 const exportButton = document.getElementById("export-btn");
+const exportMenu = document.getElementById("export-menu");
+const exportWordButton = document.getElementById("export-word-btn");
+const exportPdfButton = document.getElementById("export-pdf-btn");
 const insightHighlights = document.getElementById("insight-highlights");
 const insightEvidence = document.getElementById("insight-evidence");
 const insightStrategy = document.getElementById("insight-strategy");
@@ -781,17 +786,107 @@ async function humanizeDocument() {
 }
 
 function exportDocument() {
+  exportMenu?.classList.toggle("hidden");
+}
+
+function downloadBlob(blob, filename) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function buildExportBaseName() {
+  const safeTitle = `${outputTitle.textContent || templateMeta[state.selectedTemplate].title}`
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return safeTitle || `zionapply-${state.selectedTemplate}`;
+}
+
+async function exportWordDocument() {
   if (!state.currentDocument.length) {
     setStatusMessage("当前没有可导出的内容。", "warning");
     return;
   }
 
-  const blob = new Blob([state.currentDocument.join("\n\n")], { type: "text/plain;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `zionapply-${state.selectedTemplate}-${Date.now()}.txt`;
-  link.click();
-  URL.revokeObjectURL(link.href);
+  try {
+    const doc = new Document({
+      sections: [
+        {
+          children: [
+            new Paragraph({
+              children: [new TextRun({ text: outputTitle.textContent || templateMeta[state.selectedTemplate].title, bold: true, size: 32 })],
+              spacing: { after: 240 },
+            }),
+            ...state.currentDocument.map(
+              (paragraph) =>
+                new Paragraph({
+                  children: [new TextRun({ text: paragraph })],
+                  spacing: { after: 180 },
+                })
+            ),
+          ],
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    downloadBlob(blob, `${buildExportBaseName()}.docx`);
+    exportMenu?.classList.add("hidden");
+    setStatusMessage("已导出 Word 文稿。", "success");
+  } catch (error) {
+    setStatusMessage(error.message || "Word 导出失败。", "danger");
+  }
+}
+
+function exportPdfDocument() {
+  if (!state.currentDocument.length) {
+    setStatusMessage("当前没有可导出的内容。", "warning");
+    return;
+  }
+
+  try {
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const marginX = 56;
+    const marginTop = 64;
+    const marginBottom = 56;
+    let cursorY = marginTop;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+    const titleLines = pdf.splitTextToSize(outputTitle.textContent || templateMeta[state.selectedTemplate].title, pageWidth - marginX * 2);
+    pdf.text(titleLines, marginX, cursorY);
+    cursorY += titleLines.length * 24 + 12;
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
+
+    for (const paragraph of state.currentDocument) {
+      const lines = pdf.splitTextToSize(paragraph, pageWidth - marginX * 2);
+      const blockHeight = lines.length * 18 + 10;
+      if (cursorY + blockHeight > pageHeight - marginBottom) {
+        pdf.addPage();
+        cursorY = marginTop;
+      }
+      pdf.text(lines, marginX, cursorY);
+      cursorY += blockHeight;
+    }
+
+    pdf.save(`${buildExportBaseName()}.pdf`);
+    exportMenu?.classList.add("hidden");
+    setStatusMessage("已导出 PDF 文稿。", "success");
+  } catch (error) {
+    setStatusMessage(error.message || "PDF 导出失败。", "danger");
+  }
 }
 
 function switchPage(page) {
@@ -1037,6 +1132,20 @@ generateDraftButton.addEventListener("click", () => generateDocument("draft"));
 generateOutlineButton.addEventListener("click", () => generateDocument("outline"));
 humanizeButton.addEventListener("click", humanizeDocument);
 exportButton.addEventListener("click", exportDocument);
+exportWordButton?.addEventListener("click", exportWordDocument);
+exportPdfButton?.addEventListener("click", exportPdfDocument);
+document.addEventListener("click", (event) => {
+  if (!exportMenu || !exportButton) {
+    return;
+  }
+  if (event.target === exportButton || exportButton.contains(event.target)) {
+    return;
+  }
+  if (exportMenu.contains(event.target)) {
+    return;
+  }
+  exportMenu.classList.add("hidden");
+});
 
 templateCards.forEach((card) => {
   card.addEventListener("click", () => {
