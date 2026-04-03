@@ -29,10 +29,13 @@ const studentTagsInput = document.getElementById("student-tags-input");
 const studentHighlightsInput = document.getElementById("student-highlights-input");
 const studentEvidenceInput = document.getElementById("student-evidence-input");
 const studentStrategyInput = document.getElementById("student-strategy-input");
+const smartArchiveToggle = document.getElementById("smart-archive-toggle");
+const studentIntakeFileInput = document.getElementById("student-intake-file");
+const intakeFileList = document.getElementById("intake-file-list");
 
 const templateCards = document.querySelectorAll(".template-card");
 const pageNavItems = document.querySelectorAll(".nav-item[data-page]");
-const studentLists = document.querySelectorAll(".js-student-list");
+const writerStudentLists = document.querySelectorAll(".js-student-list");
 const overviewView = document.getElementById("overview-view");
 const studentsView = document.getElementById("students-view");
 const writerView = document.getElementById("writer-view");
@@ -45,6 +48,16 @@ const quickLinkCards = document.querySelectorAll("[data-page-jump]");
 const metricActiveStudents = document.getElementById("metric-active-students");
 const metricGeneratedDocs = document.getElementById("metric-generated-docs");
 const metricPendingActions = document.getElementById("metric-pending-actions");
+const studentDirectoryView = document.getElementById("student-directory-view");
+const studentWorkspaceView = document.getElementById("student-workspace-view");
+const studentDirectoryGrid = document.getElementById("student-directory-grid");
+const studentActiveCount = document.getElementById("student-active-count");
+const studentArchivedCount = document.getElementById("student-archived-count");
+const workspaceStudentName = document.getElementById("workspace-student-name");
+const studentWorkspaceSummary = document.getElementById("student-workspace-summary");
+const studentBlocksGrid = document.getElementById("student-blocks-grid");
+const studentBackButton = document.getElementById("student-back-btn");
+const startWritingButton = document.getElementById("start-writing-btn");
 
 const outputBody = document.getElementById("output-body");
 const outputTitle = document.getElementById("output-title");
@@ -106,16 +119,65 @@ const editStudentFocusInput = document.getElementById("edit-student-focus");
 const editStudentTagsInput = document.getElementById("edit-student-tags");
 const trimTemplates = document.querySelectorAll("[data-trial-hidden]");
 const docList = document.getElementById("doc-list");
+const studentBlockBackdrop = document.getElementById("student-block-backdrop");
+const closeStudentBlockButton = document.getElementById("close-student-block-btn");
+const cancelStudentBlockButton = document.getElementById("cancel-student-block-btn");
+const saveStudentBlockButton = document.getElementById("save-student-block-btn");
+const studentBlockTitleInput = document.getElementById("student-block-title");
+const studentBlockSubtitleInput = document.getElementById("student-block-subtitle");
+const studentBlockContentInput = document.getElementById("student-block-content");
 
 const templateMeta = {
   ps: { title: "个人陈述 PS", subtitle: "围绕成长轨迹、动机与项目匹配写首版 PS", aiScore: "试用输出" },
   rl: { title: "推荐信 RL", subtitle: "以推荐人视角输出具体可信的推荐信", aiScore: "试用输出" },
 };
 
+function buildDefaultStudentSections(profile) {
+  return [
+    {
+      id: `${profile.id}-education`,
+      title: "教育经历",
+      subtitle: "Education",
+      icon: "🎓",
+      tone: "blue",
+      content: `${profile.summary} 目前主申请方向为 ${profile.targetProgram}，建议优先围绕学术基础与项目匹配来建立主叙事。`,
+    },
+    {
+      id: `${profile.id}-experience`,
+      title: "经历与项目",
+      subtitle: "Experience",
+      icon: "💼",
+      tone: "green",
+      content: (profile.evidence || []).join("；") || "补充实习、科研、比赛或项目经历，让后续 PS 与推荐信更有证据支撑。",
+    },
+    {
+      id: `${profile.id}-highlights`,
+      title: "个人亮点",
+      subtitle: "Highlights",
+      icon: "✨",
+      tone: "purple",
+      content: (profile.highlights || []).join("；") || "补充个人特质、故事转折点和成长线索。",
+    },
+    {
+      id: `${profile.id}-strategy`,
+      title: "申请策略",
+      subtitle: "Strategy",
+      icon: "🧭",
+      tone: "amber",
+      content: (profile.strategy || []).join("；") || "补充选校思路、文书侧重点和推荐信视角安排。",
+    },
+  ];
+}
+
 const seedStudents = {
   emily: {
     id: "emily",
     displayName: "Emily Zhang",
+    gender: "女",
+    email: "emily.zhang@example.com",
+    phone: "13800138000",
+    location: "上海",
+    createdAt: "2026/04/03",
     applicationTrack: "美本申请",
     targetProgram: "Digital Media / Interactive Storytelling",
     statusLabel: "可生成",
@@ -130,17 +192,114 @@ const seedStudents = {
     recommenderRole: "影视叙事课程导师",
     relationshipDuration: "2 年",
     recommendationEvidence: "她在课程项目中独立完成选题、采访、后期剪辑，并主动协调组员完成拍摄排期。",
+    stats: [
+      { label: "GPA", value: "3.82", tone: "blue" },
+      { label: "文书", value: "2", tone: "amber" },
+      { label: "亮点", value: "4", tone: "purple" },
+    ],
+    sections: [],
+  },
+  claire: {
+    id: "claire",
+    displayName: "Claire Lin",
+    gender: "女",
+    email: "claire.lin@example.com",
+    phone: "13900139000",
+    location: "北京",
+    createdAt: "2026/04/02",
+    applicationTrack: "港硕申请",
+    targetProgram: "Business Analytics",
+    statusLabel: "资料待补充",
+    statusTone: "pending",
+    tags: ["GPA 3.74", "审计实习", "志愿服务"],
+    summary: "商科背景清晰，具备财务与审计方向经历，适合围绕执行力与数据分析能力展开申请故事。",
+    highlights: ["两段审计相关实习", "校级学生干部经历", "长期体育竞赛训练背景"],
+    evidence: ["金融审计实习底稿编制", "志愿讲解员与活动组织", "校级优秀团干部"],
+    strategy: ["PS 先写多任务并行的成长线", "突出数据分析与职业目标", "推荐信强调可靠性与执行力"],
+    tone: "学术、克制",
+    focus: "强调从审计实务中形成的严谨思维，以及转向商业分析后的职业目标。",
+    recommenderRole: "实习直属带教老师",
+    relationshipDuration: "8 个月",
+    recommendationEvidence: "她在审计项目中主动梳理底稿结构，并能快速校核数据问题。",
+    stats: [
+      { label: "GPA", value: "3.74", tone: "blue" },
+      { label: "经历", value: "5", tone: "purple" },
+      { label: "文书", value: "0", tone: "amber" },
+    ],
+    sections: [
+      {
+        id: "claire-education",
+        title: "教育经历",
+        subtitle: "Education",
+        icon: "🎓",
+        tone: "purple",
+        content: "本科就读于北京信息科技大学财务管理专业，GPA 3.74。大学期间逐步形成规范、闭环的学习方法，专业基础稳固。",
+      },
+      {
+        id: "claire-experience",
+        title: "工作经历",
+        subtitle: "Experience",
+        icon: "💼",
+        tone: "green",
+        content: "在会计师事务所北京分所担任金融审计实习生，参与审计底稿编制、银行函证核对与数据复核工作，培养了严谨执行能力。",
+      },
+      {
+        id: "claire-awards",
+        title: "奖项与活动",
+        subtitle: "Awards",
+        icon: "🏆",
+        tone: "amber",
+        content: "获得校级优秀志愿者、优秀团干部等荣誉，并持续参与高强度啦啦操训练与比赛，体现长期自律与团队协作能力。",
+      },
+    ],
+  },
+  ryan: {
+    id: "ryan",
+    displayName: "Ryan Gu",
+    gender: "男",
+    email: "ryan.gu@example.com",
+    phone: "13700137000",
+    location: "深圳",
+    createdAt: "2026/03/29",
+    applicationTrack: "英硕申请",
+    targetProgram: "Computer Science",
+    statusLabel: "可生成",
+    statusTone: "ready",
+    tags: ["科研", "算法", "竞赛"],
+    summary: "计算机方向基础扎实，兼顾科研与竞赛，适合围绕问题解决能力和研究兴趣搭建文书。",
+    highlights: ["参与导师课题", "算法竞赛经历", "具备完整项目开发经验"],
+    evidence: ["校园实验室研究助手", "ACM 区域赛参赛", "独立完成全栈项目"],
+    strategy: ["PS 先写研究兴趣的来源", "强化 problem solving", "推荐信突出科研潜力"],
+    tone: "自信、故事感强",
+    focus: "把科研问题意识、项目实践和未来研究方向串成一条成长线。",
+    recommenderRole: "实验室导师",
+    relationshipDuration: "1.5 年",
+    recommendationEvidence: "他在导师项目中负责模型实验与结果分析，并主动迭代实验方案。",
+    stats: [
+      { label: "竞赛", value: "3", tone: "purple" },
+      { label: "项目", value: "4", tone: "green" },
+      { label: "文书", value: "1", tone: "amber" },
+    ],
+    sections: [],
   },
 };
+
+for (const profile of Object.values(seedStudents)) {
+  if (!profile.sections?.length) {
+    profile.sections = buildDefaultStudentSections(profile);
+  }
+}
 
 const state = {
   students: cloneData(seedStudents),
   studentOrder: Object.keys(seedStudents),
   currentPage: "overview",
+  studentUiMode: "directory",
   selectedStudent: "emily",
   selectedTemplate: "ps",
   agentMode: "upload",
   agentFiles: [],
+  intakeFiles: [],
   agentResult: [],
   currentDocument: [
     "这里会显示 AI 生成的内容。先打开 AI 设置完成配置，然后点击“生成初稿”即可开始使用。",
@@ -284,7 +443,16 @@ function renderInsights(profile) {
   renderInsightList(insightStrategy, profile.strategy || []);
 }
 
-function renderStudentList() {
+function getStudentAvatar(profile) {
+  return (profile.displayName || "学生")
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function renderWriterStudentLists() {
   const markup = state.studentOrder
     .map((key) => {
       const student = state.students[key];
@@ -303,7 +471,7 @@ function renderStudentList() {
     })
     .join("");
 
-  studentLists.forEach((container) => {
+  writerStudentLists.forEach((container) => {
     container.innerHTML = markup;
     container.querySelectorAll(".student-card").forEach((card) => {
       card.addEventListener("click", () => {
@@ -315,13 +483,228 @@ function renderStudentList() {
   });
 }
 
-function renderStudentDetail() {
-  if (!studentDetailCard) {
+function renderStudentDirectory() {
+  if (!studentDirectoryGrid) {
+    return;
+  }
+
+  studentActiveCount.textContent = String(state.studentOrder.length);
+  studentArchivedCount.textContent = "0";
+
+  studentDirectoryGrid.innerHTML = state.studentOrder
+    .map((key) => {
+      const profile = state.students[key];
+      return `
+        <article class="directory-card" data-open-student="${escapeHtml(key)}">
+          <div class="directory-card-top">
+            <div class="directory-avatar">${escapeHtml(getStudentAvatar(profile))}</div>
+            <div>
+              <h3>${escapeHtml(profile.displayName)}</h3>
+              <p>${escapeHtml(profile.gender || "未填写")}</p>
+            </div>
+          </div>
+          <div class="directory-meta">
+            <p>${escapeHtml(profile.email || "未填写邮箱")}</p>
+            <p>${escapeHtml(profile.phone || "未填写手机号")}</p>
+          </div>
+          <div class="directory-card-footer">
+            <span>${escapeHtml(profile.location || "未填写地区")}</span>
+            <span>${escapeHtml(profile.createdAt || "刚刚创建")}</span>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  studentDirectoryGrid.querySelectorAll("[data-open-student]").forEach((card) => {
+    card.addEventListener("click", () => {
+      state.selectedStudent = card.dataset.openStudent;
+      state.studentUiMode = "detail";
+      syncAll();
+    });
+  });
+}
+
+function renderStudentWorkspace() {
+  if (!studentWorkspaceSummary || !studentBlocksGrid) {
     return;
   }
 
   const profile = getSelectedProfile();
-  studentDetailCard.innerHTML = `
+  workspaceStudentName.textContent = profile.displayName;
+
+  studentWorkspaceSummary.innerHTML = `
+    <article class="profile-hero-card">
+      <div>
+        <div class="profile-hero-main">
+          <div class="profile-avatar-large">${escapeHtml(getStudentAvatar(profile))}</div>
+          <div>
+            <h3>${escapeHtml(profile.displayName)}</h3>
+            <p>${escapeHtml(profile.location || "未填写地区")} · ${escapeHtml(profile.gender || "未填写性别")}</p>
+            <div class="profile-contact-row">
+              <span>${escapeHtml(profile.phone || "未填写手机号")}</span>
+              <span>${escapeHtml(profile.email || "未填写邮箱")}</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-stat-row">
+          ${(profile.stats || [])
+            .map(
+              (stat) => `
+                <div class="profile-stat-card tone-${escapeHtml(stat.tone || "blue")}">
+                  <span>${escapeHtml(stat.label)}</span>
+                  <strong>${escapeHtml(stat.value)}</strong>
+                </div>
+              `
+            )
+            .join("")}
+        </div>
+      </div>
+      <aside class="profile-contact-card">
+        <div class="profile-contact-card-header">
+          <div>
+            <p class="panel-title">联系方式</p>
+            <p class="panel-subtitle">Contact</p>
+          </div>
+          <button class="text-btn tiny-plus" type="button">+</button>
+        </div>
+        <div class="profile-contact-items">
+          <div class="contact-item"><span>电话</span><strong>${escapeHtml(profile.phone || "未填写")}</strong></div>
+          <div class="contact-item"><span>邮箱</span><strong>${escapeHtml(profile.email || "未填写")}</strong></div>
+          <div class="contact-item"><span>地区</span><strong>${escapeHtml(profile.location || "未填写")}</strong></div>
+          <div class="contact-item"><span>申请</span><strong>${escapeHtml(profile.applicationTrack)} · ${escapeHtml(profile.targetProgram)}</strong></div>
+        </div>
+      </aside>
+    </article>
+  `;
+
+  studentBlocksGrid.innerHTML = `
+    ${(profile.sections || [])
+      .map(
+        (section) => `
+          <article class="student-info-card tone-${escapeHtml(section.tone || "blue")}" data-section-id="${escapeHtml(section.id)}">
+            <div class="student-info-card-header">
+              <div class="student-info-card-title">
+                <span class="student-info-icon">${escapeHtml(section.icon || "✦")}</span>
+                <div>
+                  <h4>${escapeHtml(section.title)}</h4>
+                  <p>${escapeHtml(section.subtitle || "")}</p>
+                </div>
+              </div>
+              <button class="icon-ghost-btn" type="button" data-delete-section="${escapeHtml(section.id)}">🗑</button>
+            </div>
+            <div class="student-info-scroll">
+              <p>${escapeHtml(section.content || "暂无内容。")}</p>
+            </div>
+          </article>
+        `
+      )
+      .join("")}
+    <button class="student-add-card" type="button" id="open-student-block-btn">
+      <span>＋</span>
+      <strong>添加信息块</strong>
+      <p>自定义标题和内容，补充更多可写进文书的材料。</p>
+    </button>
+  `;
+
+  studentBlocksGrid.querySelectorAll("[data-delete-section]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.deleteSection;
+      profile.sections = (profile.sections || []).filter((section) => section.id !== targetId);
+      renderStudentWorkspace();
+    });
+  });
+
+  document.getElementById("open-student-block-btn")?.addEventListener("click", openStudentBlockModal);
+}
+
+function renderStudentDetail() {
+  if (!studentsView) {
+    return;
+  }
+
+  renderStudentDirectory();
+  renderStudentWorkspace();
+  studentDirectoryView.classList.toggle("hidden", state.studentUiMode !== "directory");
+  studentWorkspaceView.classList.toggle("hidden", state.studentUiMode !== "detail");
+}
+
+function renderIntakeFiles() {
+  if (!intakeFileList) {
+    return;
+  }
+  if (!state.intakeFiles.length) {
+    intakeFileList.innerHTML = '<p class="empty-copy">还没有选择建档资料。</p>';
+    return;
+  }
+
+  intakeFileList.innerHTML = state.intakeFiles
+    .map(
+      (file) => `
+        <article class="intake-file-item">
+          <strong>${escapeHtml(file.name)}</strong>
+          <span>${Math.max(1, Math.round(file.size / 1024))} KB</span>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function openStudentBlockModal() {
+  studentBlockBackdrop.classList.remove("hidden");
+}
+
+function closeStudentBlockModal() {
+  studentBlockBackdrop.classList.add("hidden");
+}
+
+function saveStudentBlock() {
+  const title = studentBlockTitleInput.value.trim();
+  const content = studentBlockContentInput.value.trim();
+  if (!title || !content) {
+    setStatusMessage("请先填写信息块标题和内容。", "warning");
+    return;
+  }
+
+  const profile = getSelectedProfile();
+  profile.sections = profile.sections || [];
+  profile.sections.push({
+    id: `${profile.id}-${slugify(title)}-${Date.now()}`,
+    title,
+    subtitle: studentBlockSubtitleInput.value.trim() || "Custom Block",
+    icon: "✦",
+    tone: "blue",
+    content,
+  });
+
+  studentBlockTitleInput.value = "";
+  studentBlockSubtitleInput.value = "";
+  studentBlockContentInput.value = "";
+  closeStudentBlockModal();
+  renderStudentWorkspace();
+  setStatusMessage("已添加新的信息块。", "success");
+}
+
+function openStudentDirectory() {
+  state.studentUiMode = "directory";
+  syncAll();
+}
+
+function openStudentWorkspace(studentId = state.selectedStudent) {
+  state.selectedStudent = studentId;
+  state.studentUiMode = "detail";
+  syncAll();
+}
+
+function goToWritingFromStudent() {
+  state.currentPage = "ps";
+  state.selectedTemplate = "ps";
+  window.location.hash = "ps";
+  syncAll();
+}
+
+function legacyRenderStudentDetailMarkup(profile) {
+  return `
     <div class="detail-hero">
       <div>
         <h3>${escapeHtml(profile.displayName)}</h3>
@@ -451,8 +834,8 @@ function syncPageState() {
     },
     students: {
       kicker: "Students",
-      title: "学生档案",
-      subtitle: "集中管理学生资料、亮点和申请策略。",
+      title: state.studentUiMode === "detail" ? `${getSelectedProfile().displayName} 的学生档案` : "学生档案",
+      subtitle: state.studentUiMode === "detail" ? "按信息块整理经历、证据和文书素材。" : "集中管理学生资料、亮点和申请策略。",
     },
     ps: {
       kicker: "Writer",
@@ -495,8 +878,9 @@ function syncAgentMode() {
 }
 
 function syncAll() {
-  renderStudentList();
+  renderWriterStudentLists();
   renderStudentDetail();
+  renderIntakeFiles();
   renderAgentLibrary();
   renderAgentFiles();
   renderInsights(getSelectedProfile());
@@ -508,6 +892,8 @@ function syncAll() {
 }
 
 function openModal() {
+  state.intakeFiles = [];
+  renderIntakeFiles();
   modalBackdrop.classList.remove("hidden");
 }
 
@@ -541,23 +927,75 @@ function closeStudentEditor() {
 function buildStudentFromModal() {
   const name = studentNameInput.value.trim() || "未命名学生";
   const key = slugify(name);
+  const summary = studentSummaryInput.value.trim() || "已创建档案，可继续补充经历、亮点和申请策略。";
+  const tags = splitList(studentTagsInput.value);
+  const evidence = splitList(studentEvidenceInput.value);
+  const highlights = splitList(studentHighlightsInput.value);
+  const smartArchiveEnabled = smartArchiveToggle.checked;
   return {
     id: key,
     displayName: name,
+    gender: "未填写",
+    email: "",
+    phone: "",
+    location: "待补充地区",
+    createdAt: new Date().toLocaleDateString("zh-CN").replaceAll("/", "/"),
     applicationTrack: studentTrackInput.value.trim() || "待补充申请阶段",
     targetProgram: studentProgramField.value.trim() || "待补充申请方向",
     statusLabel: "可生成",
     statusTone: "ready",
-    tags: splitList(studentTagsInput.value),
-    summary: studentSummaryInput.value.trim() || "已创建试用档案，可以直接开始生成 PS 或推荐信。",
-    highlights: splitList(studentHighlightsInput.value),
-    evidence: splitList(studentEvidenceInput.value),
+    tags,
+    summary,
+    highlights,
+    evidence,
     strategy: splitList(studentStrategyInput.value),
     tone: "真诚、有反思感",
     focus: studentFocusField.value.trim() || "请突出学生的成长线索、项目证据和申请项目匹配度。",
     recommenderRole: "授课教师 / 项目导师",
     relationshipDuration: "1-2 年",
     recommendationEvidence: "请补充推荐人视角下最有说服力的一两个观察事例。",
+    stats: [
+      { label: "标签", value: String(Math.max(tags.length, 1)), tone: "blue" },
+      { label: "证据", value: String(Math.max(evidence.length, 1)), tone: "green" },
+      { label: "文书", value: "0", tone: "amber" },
+    ],
+    sections: [
+      {
+        id: `${key}-summary`,
+        title: "档案概览",
+        subtitle: "Overview",
+        icon: "🗂",
+        tone: "blue",
+        content: summary,
+      },
+      {
+        id: `${key}-highlights`,
+        title: "核心亮点",
+        subtitle: "Highlights",
+        icon: "✨",
+        tone: "purple",
+        content: highlights.join("；") || "等待补充学生亮点。",
+      },
+      {
+        id: `${key}-evidence`,
+        title: smartArchiveEnabled ? "智能建档素材" : "可用证据",
+        subtitle: smartArchiveEnabled ? "AI Intake" : "Evidence",
+        icon: smartArchiveEnabled ? "🤖" : "📎",
+        tone: "green",
+        content:
+          state.intakeFiles.length
+            ? `已上传资料：${state.intakeFiles.map((file) => file.name).join("、")}`
+            : evidence.join("；") || "等待补充可写入文书的事实证据。",
+      },
+      {
+        id: `${key}-strategy`,
+        title: "申请策略",
+        subtitle: "Strategy",
+        icon: "🧭",
+        tone: "amber",
+        content: splitList(studentStrategyInput.value).join("；") || "等待补充申请策略和文书方向。",
+      },
+    ],
   };
 }
 
@@ -571,6 +1009,9 @@ function resetModalForm() {
   studentHighlightsInput.value = "";
   studentEvidenceInput.value = "";
   studentStrategyInput.value = "";
+  smartArchiveToggle.checked = true;
+  state.intakeFiles = [];
+  renderIntakeFiles();
 }
 
 function createStudent() {
@@ -582,6 +1023,7 @@ function createStudent() {
     state.students[profile.id] = profile;
     state.studentOrder = [profile.id, ...state.studentOrder.filter((item) => item !== profile.id)];
     state.selectedStudent = profile.id;
+    state.studentUiMode = "detail";
     syncAll();
     closeModal();
     resetModalForm();
@@ -891,6 +1333,9 @@ function exportPdfDocument() {
 
 function switchPage(page) {
   state.currentPage = page;
+  if (page === "students") {
+    state.studentUiMode = "directory";
+  }
   if (page === "ps" || page === "rl") {
     state.selectedTemplate = page;
   }
@@ -1064,6 +1509,9 @@ function initializeFromHash() {
 
   if (["overview", "students", "agent", "ps", "rl"].includes(hash)) {
     state.currentPage = hash;
+    if (hash === "students") {
+      state.studentUiMode = "directory";
+    }
     if (hash === "ps" || hash === "rl") {
       state.selectedTemplate = hash;
     }
@@ -1108,6 +1556,10 @@ agentFileInput.addEventListener("change", (event) => {
   state.agentFiles = [...(event.target.files || [])];
   renderAgentFiles();
 });
+studentIntakeFileInput?.addEventListener("change", (event) => {
+  state.intakeFiles = [...(event.target.files || [])];
+  renderIntakeFiles();
+});
 agentDropzone.addEventListener("dragover", (event) => {
   event.preventDefault();
   agentDropzone.classList.add("dragover");
@@ -1123,11 +1575,21 @@ agentDropzone.addEventListener("drop", (event) => {
 });
 agentGenerateButton.addEventListener("click", generateAgentPs);
 agentUseResultButton.addEventListener("click", useAgentResult);
+studentBackButton?.addEventListener("click", openStudentDirectory);
+startWritingButton?.addEventListener("click", goToWritingFromStudent);
 
 createStudentButton.addEventListener("click", createStudent);
 saveEditStudentButton.addEventListener("click", saveStudentEdits);
 editStudentButtons.forEach((button) => button.addEventListener("click", openStudentEditor));
 deleteStudentButton?.addEventListener("click", deleteCurrentStudent);
+closeStudentBlockButton?.addEventListener("click", closeStudentBlockModal);
+cancelStudentBlockButton?.addEventListener("click", closeStudentBlockModal);
+saveStudentBlockButton?.addEventListener("click", saveStudentBlock);
+studentBlockBackdrop?.addEventListener("click", (event) => {
+  if (event.target === studentBlockBackdrop) {
+    closeStudentBlockModal();
+  }
+});
 generateDraftButton.addEventListener("click", () => generateDocument("draft"));
 generateOutlineButton.addEventListener("click", () => generateDocument("outline"));
 humanizeButton.addEventListener("click", humanizeDocument);

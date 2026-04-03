@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZionApply by Zion</title>
-    <link rel="stylesheet" href="./styles.css?v=20260323-dashboard-1" />
+    <link rel="stylesheet" href="./styles.css?v=20260403-student-archive-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -187,31 +187,44 @@
           </article>
         </section>
 
-        <section class="content-grid hidden" id="students-view">
-          <div class="panel student-panel">
-            <div class="panel-header">
+        <section class="students-shell hidden" id="students-view">
+          <div class="students-directory" id="student-directory-view">
+            <div class="students-directory-header">
               <div>
-                <p class="panel-title">学生列表</p>
-                <p class="panel-subtitle">管理资料库里的学生，并切换当前操作对象。</p>
+                <h2 class="students-page-title">学生档案</h2>
+                <p class="students-page-subtitle">管理客户档案、智能建档和后续文书创作入口。</p>
+              </div>
+              <button class="primary-btn students-create-btn" data-open-student-modal>+ 创建客户</button>
+            </div>
+
+            <div class="students-directory-toolbar">
+              <div class="students-directory-tabs">
+                <button class="students-tab active" type="button">服务中 <span id="student-active-count">0</span></button>
+                <button class="students-tab" type="button">已归档 <span id="student-archived-count">0</span></button>
+              </div>
+              <div class="students-directory-view-toggle">
+                <button class="icon-chip active" type="button" aria-label="卡片视图">▦</button>
               </div>
             </div>
 
-            <div class="student-list js-student-list"></div>
-
-            <div class="student-tools">
-              <button class="ghost-btn compact-btn" data-edit-student>编辑当前档案</button>
-              <button class="primary-btn compact-btn" data-open-student-modal>新建档案</button>
-            </div>
+            <div class="student-directory-grid" id="student-directory-grid"></div>
           </div>
 
-          <div class="panel archive-panel">
-            <div class="panel-header">
-              <div>
-                <p class="panel-title">档案详情</p>
-                <p class="panel-subtitle">当前学生的摘要、亮点与可用素材。</p>
+          <div class="student-workspace hidden" id="student-workspace-view">
+            <div class="student-workspace-top">
+              <div class="student-workspace-breadcrumb">
+                <button class="text-btn breadcrumb-back" id="student-back-btn" type="button">← 返回学生档案</button>
+                <span>客户 / <strong id="workspace-student-name">学生详情</strong></span>
+              </div>
+              <div class="student-workspace-actions">
+                <button class="ghost-btn compact-btn" data-edit-student>编辑档案</button>
+                <button class="primary-btn compact-btn" id="start-writing-btn" type="button">开始创作</button>
               </div>
             </div>
-            <div class="archive-detail" id="student-detail-card"></div>
+
+            <div class="student-workspace-summary" id="student-workspace-summary"></div>
+
+            <div class="student-blocks-grid" id="student-blocks-grid"></div>
           </div>
         </section>
 
@@ -410,49 +423,75 @@
     </div>
 
     <div class="modal-backdrop hidden" id="modal-backdrop">
-      <section class="modal">
+      <section class="modal modal-student-create">
         <div class="modal-header">
-          <h2>创建试用档案</h2>
+          <h2>创建客户</h2>
           <button class="icon-btn" id="close-modal-btn" aria-label="关闭">×</button>
         </div>
 
-        <label class="field">
-          <span>学生姓名</span>
-          <input type="text" placeholder="输入学生姓名" id="student-name-input" />
-        </label>
         <div class="generator-form">
           <label class="field">
-            <span>申请阶段</span>
-            <input type="text" placeholder="如：美本申请 / 研究生申请" id="student-track-input" />
+            <span>昵称</span>
+            <input type="text" placeholder="输入客户昵称，仅自己可见" id="student-name-input" />
           </label>
-          <label class="field">
-            <span>申请方向</span>
-            <input type="text" placeholder="如：Computer Science / Education" id="student-program-field" />
-          </label>
-          <label class="field">
-            <span>档案摘要</span>
-            <textarea rows="3" id="student-summary-input" placeholder="用 1-2 句话概括学生背景和申请方向"></textarea>
-          </label>
-          <label class="field">
-            <span>重点强调</span>
-            <textarea rows="4" id="student-focus-field" placeholder="告诉 AI 生成时最应该强调什么"></textarea>
-          </label>
-          <label class="field">
-            <span>标签</span>
-            <input type="text" id="student-tags-input" placeholder="如：GPA 3.8，实习，科研" />
-          </label>
-          <label class="field">
-            <span>亮点</span>
-            <textarea rows="3" id="student-highlights-input" placeholder="每行一个亮点，或用逗号分隔"></textarea>
-          </label>
-          <label class="field">
-            <span>证据</span>
-            <textarea rows="3" id="student-evidence-input" placeholder="每行一个事例，或用逗号分隔"></textarea>
-          </label>
-          <label class="field">
-            <span>申请策略</span>
-            <textarea rows="3" id="student-strategy-input" placeholder="每行一条策略建议，或用逗号分隔"></textarea>
-          </label>
+          <div class="smart-toggle-row">
+            <label class="smart-toggle" for="smart-archive-toggle">
+              <input id="smart-archive-toggle" type="checkbox" checked />
+              <span class="smart-toggle-track"></span>
+            </label>
+            <div>
+              <strong>智能建档？</strong>
+              <p>上传客户资料后，自动识别内容完成学生档案建立，免手输操作。</p>
+            </div>
+          </div>
+
+          <div class="smart-upload-panel">
+            <p class="smart-upload-title">AI 智能建档</p>
+            <p class="smart-upload-copy">上传客户信息收集表、简历或成绩材料，系统会优先整理成清晰档案结构。</p>
+            <label class="smart-upload-dropzone" for="student-intake-file">
+              <input id="student-intake-file" type="file" multiple hidden />
+              <div class="agent-drop-icon">⇪</div>
+              <strong>拖拽文档到这里</strong>
+              <span>或点击选择文件</span>
+              <small>支持格式：pdf、docx、doc、txt、png、jpg、jpeg、gif、webp</small>
+            </label>
+            <div class="intake-file-list" id="intake-file-list"></div>
+          </div>
+
+          <div class="compact-fields">
+            <label class="field">
+              <span>申请阶段</span>
+              <input type="text" placeholder="如：美本申请 / 研究生申请" id="student-track-input" />
+            </label>
+            <label class="field">
+              <span>申请方向</span>
+              <input type="text" placeholder="如：Computer Science / Education" id="student-program-field" />
+            </label>
+            <label class="field">
+              <span>档案摘要</span>
+              <textarea rows="3" id="student-summary-input" placeholder="用 1-2 句话概括学生背景和申请方向"></textarea>
+            </label>
+            <label class="field">
+              <span>重点强调</span>
+              <textarea rows="4" id="student-focus-field" placeholder="告诉 AI 生成时最应该强调什么"></textarea>
+            </label>
+            <label class="field">
+              <span>标签</span>
+              <input type="text" id="student-tags-input" placeholder="如：GPA 3.8，实习，科研" />
+            </label>
+            <label class="field">
+              <span>亮点</span>
+              <textarea rows="3" id="student-highlights-input" placeholder="每行一个亮点，或用逗号分隔"></textarea>
+            </label>
+            <label class="field">
+              <span>证据</span>
+              <textarea rows="3" id="student-evidence-input" placeholder="每行一个事例，或用逗号分隔"></textarea>
+            </label>
+            <label class="field">
+              <span>申请策略</span>
+              <textarea rows="3" id="student-strategy-input" placeholder="每行一条策略建议，或用逗号分隔"></textarea>
+            </label>
+          </div>
         </div>
 
         <div class="modal-actions">
@@ -528,6 +567,33 @@
       </section>
     </div>
 
-    <script type="module" src="./app.js?v=20260323-dashboard-1"></script>
+    <div class="modal-backdrop hidden" id="student-block-backdrop">
+      <section class="modal modal-narrow">
+        <div class="modal-header">
+          <h2>添加信息块</h2>
+          <button class="icon-btn" id="close-student-block-btn" aria-label="关闭">×</button>
+        </div>
+        <div class="generator-form">
+          <label class="field">
+            <span>信息块标题</span>
+            <input type="text" id="student-block-title" placeholder="如：竞赛经历 / 科研项目 / 个人成长" />
+          </label>
+          <label class="field">
+            <span>副标题</span>
+            <input type="text" id="student-block-subtitle" placeholder="如：Highlights / Research / Growth" />
+          </label>
+          <label class="field">
+            <span>内容</span>
+            <textarea rows="6" id="student-block-content" placeholder="输入这个信息块的详细内容"></textarea>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button class="ghost-btn" id="cancel-student-block-btn">取消</button>
+          <button class="primary-btn" id="save-student-block-btn">添加信息块</button>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="./app.js?v=20260403-student-archive-1"></script>
   </body>
 </html>
