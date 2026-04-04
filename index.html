@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZionApply by Zion</title>
-    <link rel="stylesheet" href="./styles.css?v=20260403-student-archive-1" />
+    <link rel="stylesheet" href="./styles.css?v=20260404-student-archive-2" />
   </head>
   <body>
     <div class="app-shell">
@@ -203,7 +203,14 @@
                 <button class="students-tab" type="button">已归档 <span id="student-archived-count">0</span></button>
               </div>
               <div class="students-directory-view-toggle">
-                <button class="icon-chip active" type="button" aria-label="卡片视图">▦</button>
+                <button class="icon-chip active" type="button" aria-label="卡片视图">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <rect x="4.5" y="4.5" width="6" height="6" rx="1.2"></rect>
+                    <rect x="13.5" y="4.5" width="6" height="6" rx="1.2"></rect>
+                    <rect x="4.5" y="13.5" width="6" height="6" rx="1.2"></rect>
+                    <rect x="13.5" y="13.5" width="6" height="6" rx="1.2"></rect>
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -211,6 +218,10 @@
           </div>
 
           <div class="student-workspace hidden" id="student-workspace-view">
+            <div class="student-workspace-tabs">
+              <button class="workspace-tab active" type="button">档案</button>
+              <button class="workspace-tab" type="button">客户文书</button>
+            </div>
             <div class="student-workspace-top">
               <div class="student-workspace-breadcrumb">
                 <button class="text-btn breadcrumb-back" id="student-back-btn" type="button">← 返回学生档案</button>
@@ -429,8 +440,8 @@
           <button class="icon-btn" id="close-modal-btn" aria-label="关闭">×</button>
         </div>
 
-        <div class="generator-form">
-          <label class="field">
+        <div class="generator-form create-student-form">
+          <label class="field field-soft">
             <span>昵称</span>
             <input type="text" placeholder="输入客户昵称，仅自己可见" id="student-name-input" />
           </label>
@@ -594,6 +605,6 @@
       </section>
     </div>
 
-    <script type="module" src="./app.js?v=20260403-student-archive-1"></script>
+    <script type="module" src="./app.js?v=20260404-student-archive-2"></script>
   </body>
 </html>

@@ -138,31 +138,63 @@ function buildDefaultStudentSections(profile) {
       id: `${profile.id}-education`,
       title: "教育经历",
       subtitle: "Education",
-      icon: "🎓",
+      icon: "cap",
       tone: "blue",
-      content: `${profile.summary} 目前主申请方向为 ${profile.targetProgram}，建议优先围绕学术基础与项目匹配来建立主叙事。`,
+      content: `${profile.summary} 目前主申请方向为 ${profile.targetProgram}，建议优先围绕学术基础、课程训练和项目匹配来建立主叙事。`,
     },
     {
       id: `${profile.id}-experience`,
-      title: "经历与项目",
+      title: "工作经历",
       subtitle: "Experience",
-      icon: "💼",
+      icon: "briefcase",
       tone: "green",
       content: (profile.evidence || []).join("；") || "补充实习、科研、比赛或项目经历，让后续 PS 与推荐信更有证据支撑。",
     },
     {
-      id: `${profile.id}-highlights`,
-      title: "个人亮点",
-      subtitle: "Highlights",
-      icon: "✨",
+      id: `${profile.id}-awards`,
+      title: "奖项与成果",
+      subtitle: "Awards",
+      icon: "trophy",
       tone: "purple",
-      content: (profile.highlights || []).join("；") || "补充个人特质、故事转折点和成长线索。",
+      content: (profile.highlights || []).join("；") || "补充奖项、比赛、论文、研究等可量化成果。",
+    },
+    {
+      id: `${profile.id}-activities`,
+      title: "课外活动",
+      subtitle: "Activities",
+      icon: "spark",
+      tone: "green",
+      content: "补充社团、志愿、组织、运动、竞赛等经历，便于拓展文书素材的层次。",
+    },
+    {
+      id: `${profile.id}-challenge`,
+      title: "个人经历和挑战",
+      subtitle: "Challenges",
+      icon: "path",
+      tone: "amber",
+      content: "补充对你成长影响最大的困难、转折点和你如何应对的过程。",
+    },
+    {
+      id: `${profile.id}-qualities`,
+      title: "技能和素质",
+      subtitle: "Strengths",
+      icon: "bulb",
+      tone: "amber",
+      content: "总结适合被写进文书和推荐信的能力特征，如分析力、执行力、沟通力、领导力。",
+    },
+    {
+      id: `${profile.id}-interests`,
+      title: "个人兴趣和爱好",
+      subtitle: "Interests",
+      icon: "heart",
+      tone: "purple",
+      content: "补充兴趣爱好和长期坚持的活动，让人物形象更完整、更有温度。",
     },
     {
       id: `${profile.id}-strategy`,
       title: "申请策略",
       subtitle: "Strategy",
-      icon: "🧭",
+      icon: "document",
       tone: "amber",
       content: (profile.strategy || []).join("；") || "补充选校思路、文书侧重点和推荐信视角安排。",
     },
@@ -194,8 +226,8 @@ const seedStudents = {
     recommendationEvidence: "她在课程项目中独立完成选题、采访、后期剪辑，并主动协调组员完成拍摄排期。",
     stats: [
       { label: "GPA", value: "3.82", tone: "blue" },
+      { label: "教育经历", value: "1", tone: "purple" },
       { label: "文书", value: "2", tone: "amber" },
-      { label: "亮点", value: "4", tone: "purple" },
     ],
     sections: [],
   },
@@ -223,7 +255,7 @@ const seedStudents = {
     recommendationEvidence: "她在审计项目中主动梳理底稿结构，并能快速校核数据问题。",
     stats: [
       { label: "GPA", value: "3.74", tone: "blue" },
-      { label: "经历", value: "5", tone: "purple" },
+      { label: "教育经历", value: "1", tone: "purple" },
       { label: "文书", value: "0", tone: "amber" },
     ],
     sections: [
@@ -231,7 +263,7 @@ const seedStudents = {
         id: "claire-education",
         title: "教育经历",
         subtitle: "Education",
-        icon: "🎓",
+        icon: "cap",
         tone: "purple",
         content: "本科就读于北京信息科技大学财务管理专业，GPA 3.74。大学期间逐步形成规范、闭环的学习方法，专业基础稳固。",
       },
@@ -239,7 +271,7 @@ const seedStudents = {
         id: "claire-experience",
         title: "工作经历",
         subtitle: "Experience",
-        icon: "💼",
+        icon: "briefcase",
         tone: "green",
         content: "在会计师事务所北京分所担任金融审计实习生，参与审计底稿编制、银行函证核对与数据复核工作，培养了严谨执行能力。",
       },
@@ -247,9 +279,25 @@ const seedStudents = {
         id: "claire-awards",
         title: "奖项与活动",
         subtitle: "Awards",
-        icon: "🏆",
+        icon: "trophy",
         tone: "amber",
         content: "获得校级优秀志愿者、优秀团干部等荣誉，并持续参与高强度啦啦操训练与比赛，体现长期自律与团队协作能力。",
+      },
+      {
+        id: "claire-growth",
+        title: "个人成长和发展",
+        subtitle: "Growth",
+        icon: "path",
+        tone: "blue",
+        content: "在大学期间经历多重任务并行的高压阶段，逐步形成更成熟的时间管理方式和自我要求，这也是申请叙事里很强的一条成长线。",
+      },
+      {
+        id: "claire-skills",
+        title: "技能和素质",
+        subtitle: "Strengths",
+        icon: "bulb",
+        tone: "amber",
+        content: "具备严谨的数据处理能力、较强的执行力和组织协调能力，适合在 PS 与 RL 中分别展开。",
       },
     ],
   },
@@ -277,7 +325,7 @@ const seedStudents = {
     recommendationEvidence: "他在导师项目中负责模型实验与结果分析，并主动迭代实验方案。",
     stats: [
       { label: "竞赛", value: "3", tone: "purple" },
-      { label: "项目", value: "4", tone: "green" },
+      { label: "教育经历", value: "1", tone: "green" },
       { label: "文书", value: "1", tone: "amber" },
     ],
     sections: [],
@@ -452,6 +500,21 @@ function getStudentAvatar(profile) {
     .toUpperCase();
 }
 
+function getSectionIconMarkup(iconName = "document") {
+  const icons = {
+    cap: '<svg viewBox="0 0 24 24" fill="none"><path d="m3.5 9.5 8.5-4 8.5 4-8.5 4-8.5-4Z"></path><path d="M7 11.5v4.2c0 .4.2.7.6.9 2.7 1.4 6.1 1.4 8.8 0 .4-.2.6-.5.6-.9v-4.2"></path><path d="M20.5 10v5"></path></svg>',
+    briefcase: '<svg viewBox="0 0 24 24" fill="none"><path d="M8 7V5.8c0-.7.5-1.3 1.2-1.3h5.6c.7 0 1.2.6 1.2 1.3V7"></path><rect x="3.5" y="7" width="17" height="12.5" rx="2"></rect><path d="M3.5 11.5h17"></path></svg>',
+    trophy: '<svg viewBox="0 0 24 24" fill="none"><path d="M7 5.5h10v2.7c0 2.8-2.2 5-5 5s-5-2.2-5-5V5.5Z"></path><path d="M7 7H4.8c-.7 0-1.3.6-1.3 1.3 0 2.1 1.7 3.7 3.8 3.7H8"></path><path d="M17 7h2.2c.7 0 1.3.6 1.3 1.3 0 2.1-1.7 3.7-3.8 3.7H16"></path><path d="M12 13.2v4"></path><path d="M8.5 20h7"></path></svg>',
+    spark: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5v4"></path><path d="M12 16.5v4"></path><path d="M4.9 7.1 7.7 10"></path><path d="m16.3 14 2.8 2.9"></path><path d="M3.5 12h4"></path><path d="M16.5 12h4"></path><path d="m4.9 16.9 2.8-2.9"></path><path d="m16.3 10 2.8-2.9"></path></svg>',
+    path: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 18c2.5-5.3 5.1-8 7.7-8H18"></path><path d="m15 6 3 4-3 4"></path><circle cx="6" cy="18" r="2"></circle></svg>',
+    bulb: '<svg viewBox="0 0 24 24" fill="none"><path d="M8 14c-1.4-1.1-2.3-2.8-2.3-4.7a6.3 6.3 0 1 1 12.6 0c0 1.9-.9 3.6-2.3 4.7-.6.5-1 1.2-1 2H9c0-.8-.4-1.5-1-2Z"></path><path d="M9.5 18h5"></path><path d="M10 20.5h4"></path></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-6.8-4.3-8.6-8.3C2.2 9 3 6 6.2 5.2c2-.5 3.8.4 4.8 1.8 1-1.4 2.8-2.3 4.8-1.8C19 6 19.8 9 18.6 11.7 16.8 15.7 12 20 12 20Z"></path></svg>',
+    document: '<svg viewBox="0 0 24 24" fill="none"><path d="M7 4.5h7l4 4V19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1Z"></path><path d="M14 4.5v4h4"></path><path d="M9 13h6M9 16h6"></path></svg>',
+    contact: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 7.5A2.5 2.5 0 1 1 11 7.5 2.5 2.5 0 0 1 6 7.5Z"></path><path d="M4.5 18c.5-2.7 2.5-4 5-4s4.5 1.3 5 4"></path><rect x="14.5" y="6" width="5" height="2"></rect><rect x="14.5" y="10.5" width="5" height="2"></rect></svg>',
+  };
+  return icons[iconName] || icons.document;
+}
+
 function renderWriterStudentLists() {
   const markup = state.studentOrder
     .map((key) => {
@@ -500,12 +563,12 @@ function renderStudentDirectory() {
             <div class="directory-avatar">${escapeHtml(getStudentAvatar(profile))}</div>
             <div>
               <h3>${escapeHtml(profile.displayName)}</h3>
-              <p>${escapeHtml(profile.gender || "未填写")}</p>
+              <p>${escapeHtml(profile.gender || "未填写")} · ${escapeHtml(profile.applicationTrack || "待补充阶段")}</p>
             </div>
           </div>
           <div class="directory-meta">
-            <p>${escapeHtml(profile.email || "未填写邮箱")}</p>
-            <p>${escapeHtml(profile.phone || "未填写手机号")}</p>
+            <p><span>邮箱</span>${escapeHtml(profile.email || "未填写邮箱")}</p>
+            <p><span>电话</span>${escapeHtml(profile.phone || "未填写手机号")}</p>
           </div>
           <div class="directory-card-footer">
             <span>${escapeHtml(profile.location || "未填写地区")}</span>
@@ -569,10 +632,22 @@ function renderStudentWorkspace() {
           <button class="text-btn tiny-plus" type="button">+</button>
         </div>
         <div class="profile-contact-items">
-          <div class="contact-item"><span>电话</span><strong>${escapeHtml(profile.phone || "未填写")}</strong></div>
-          <div class="contact-item"><span>邮箱</span><strong>${escapeHtml(profile.email || "未填写")}</strong></div>
-          <div class="contact-item"><span>地区</span><strong>${escapeHtml(profile.location || "未填写")}</strong></div>
-          <div class="contact-item"><span>申请</span><strong>${escapeHtml(profile.applicationTrack)} · ${escapeHtml(profile.targetProgram)}</strong></div>
+          <div class="contact-item">
+            <span class="contact-icon">${getSectionIconMarkup("contact")}</span>
+            <div><span>电话</span><strong>${escapeHtml(profile.phone || "未填写")}</strong></div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">${getSectionIconMarkup("document")}</span>
+            <div><span>邮箱</span><strong>${escapeHtml(profile.email || "未填写")}</strong></div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">${getSectionIconMarkup("path")}</span>
+            <div><span>地区</span><strong>${escapeHtml(profile.location || "未填写")}</strong></div>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">${getSectionIconMarkup("spark")}</span>
+            <div><span>申请</span><strong>${escapeHtml(profile.applicationTrack)} · ${escapeHtml(profile.targetProgram)}</strong></div>
+          </div>
         </div>
       </aside>
     </article>
@@ -585,7 +660,7 @@ function renderStudentWorkspace() {
           <article class="student-info-card tone-${escapeHtml(section.tone || "blue")}" data-section-id="${escapeHtml(section.id)}">
             <div class="student-info-card-header">
               <div class="student-info-card-title">
-                <span class="student-info-icon">${escapeHtml(section.icon || "✦")}</span>
+                <span class="student-info-icon">${getSectionIconMarkup(section.icon)}</span>
                 <div>
                   <h4>${escapeHtml(section.title)}</h4>
                   <p>${escapeHtml(section.subtitle || "")}</p>
@@ -672,7 +747,7 @@ function saveStudentBlock() {
     id: `${profile.id}-${slugify(title)}-${Date.now()}`,
     title,
     subtitle: studentBlockSubtitleInput.value.trim() || "Custom Block",
-    icon: "✦",
+    icon: "document",
     tone: "blue",
     content,
   });
@@ -752,7 +827,7 @@ function renderAgentLibrary() {
     card.addEventListener("click", () => {
       state.selectedStudent = card.dataset.agentStudent;
       renderAgentLibrary();
-      renderStudentList();
+      renderWriterStudentLists();
       setStatusMessage(`文书Agent 已选择 ${getSelectedProfile().displayName} 的资料库档案。`, "info");
     });
   });
@@ -955,32 +1030,32 @@ function buildStudentFromModal() {
     relationshipDuration: "1-2 年",
     recommendationEvidence: "请补充推荐人视角下最有说服力的一两个观察事例。",
     stats: [
-      { label: "标签", value: String(Math.max(tags.length, 1)), tone: "blue" },
-      { label: "证据", value: String(Math.max(evidence.length, 1)), tone: "green" },
+      { label: "GPA", value: tags.find((tag) => /gpa/i.test(tag))?.replace(/.*?(?=\d|\.)/, "") || "待补充", tone: "blue" },
+      { label: "教育经历", value: "1", tone: "purple" },
       { label: "文书", value: "0", tone: "amber" },
     ],
     sections: [
       {
         id: `${key}-summary`,
-        title: "档案概览",
+        title: "教育经历",
         subtitle: "Overview",
-        icon: "🗂",
+        icon: "cap",
         tone: "blue",
         content: summary,
       },
       {
         id: `${key}-highlights`,
-        title: "核心亮点",
+        title: "学术成就",
         subtitle: "Highlights",
-        icon: "✨",
+        icon: "trophy",
         tone: "purple",
         content: highlights.join("；") || "等待补充学生亮点。",
       },
       {
         id: `${key}-evidence`,
-        title: smartArchiveEnabled ? "智能建档素材" : "可用证据",
+        title: smartArchiveEnabled ? "智能建档素材" : "工作经历",
         subtitle: smartArchiveEnabled ? "AI Intake" : "Evidence",
-        icon: smartArchiveEnabled ? "🤖" : "📎",
+        icon: smartArchiveEnabled ? "spark" : "briefcase",
         tone: "green",
         content:
           state.intakeFiles.length
@@ -989,9 +1064,9 @@ function buildStudentFromModal() {
       },
       {
         id: `${key}-strategy`,
-        title: "申请策略",
-        subtitle: "Strategy",
-        icon: "🧭",
+        title: "个人成长和发展",
+        subtitle: "Growth",
+        icon: "path",
         tone: "amber",
         content: splitList(studentStrategyInput.value).join("；") || "等待补充申请策略和文书方向。",
       },
